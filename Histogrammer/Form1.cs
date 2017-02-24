@@ -14,8 +14,9 @@ namespace Histogrammer
     {
         PointF center = new PointF();
         PointF zoom = new PointF(32, 32); // Count of pixels in local unit
-        float zoomRate = 2f;
-        float axisStep = 32;
+        float zoomStep = 2f;
+        float axisItemMin = 32, axisItemMax = 64;
+        float axisItemWidth = 32;
 
         float axisMarkSize = 2;
         float axisSignIndent = 15;
@@ -23,7 +24,8 @@ namespace Histogrammer
         PointF mouseClick = new PointF();
         bool isMoving = false;
 
-        Pen penAxis = new Pen(Color.Gray, 1f);
+        Pen penAxisMain = new Pen(Color.Gray, 1f);
+        Pen penAxisAux = new Pen(Color.FromArgb(240, 240, 240), 1f);
         Font fontAxis = new Font("Segoe UI", 8f);
         Brush brushAxis = Brushes.Gray;
 
@@ -49,9 +51,9 @@ namespace Histogrammer
             center = new PointF(ClientRectangle.Width / 2, ClientRectangle.Height / 2);
 
             points = new List<PointF>();
-            for (float i = 0; i <= 100; i+=0.1f)
+            for (float i = 0; i <= 200; i+=0.5f)
             {
-                points.Add(new PointF((float)(Math.Sqrt(i) * 6), i));
+                points.Add(new PointF(i, i));
             }
         }
 
@@ -87,18 +89,19 @@ namespace Histogrammer
         {
             if (e.Delta > 0)
             {
-                zoom.X /= zoomRate;
-                zoom.Y /= zoomRate;
-                center.X = e.X + (center.X - e.X) / zoomRate;
-                center.Y = e.Y + (center.Y - e.Y) / zoomRate;
+                zoom.X *= zoomStep;
+                zoom.Y *= zoomStep;
+                center.X = e.X + (center.X - e.X) * zoomStep;
+                center.Y = e.Y + (center.Y - e.Y) * zoomStep;
             }
             else
             {
-                zoom.X *= zoomRate;
-                zoom.Y *= zoomRate;
-                center.X = e.X + (center.X - e.X) * zoomRate;
-                center.Y = e.Y + (center.Y - e.Y) * zoomRate;
+                zoom.X /= zoomStep;
+                zoom.Y /= zoomStep;
+                center.X = e.X + (center.X - e.X) / zoomStep;
+                center.Y = e.Y + (center.Y - e.Y) / zoomStep;
             }
+            
             pictureBox1.Invalidate();
             Text = zoom.ToString();
         }
@@ -113,15 +116,15 @@ namespace Histogrammer
 
             ///// X-axis
             // axis
-            g.DrawLine(penAxis, 0, center.Y, pictureBox1.Width, center.Y);
+            g.DrawLine(penAxisMain, 0, center.Y, pictureBox1.Width, center.Y);
             // arrow
-            g.DrawLines(penAxis, new PointF[] {
+            g.DrawLines(penAxisMain, new PointF[] {
                 new PointF(pictureBox1.Width - 8, center.Y - 4),
                 new PointF(pictureBox1.Width, center.Y),
                 new PointF(pictureBox1.Width - 8, center.Y + 4)
             });
             // markers & signatures
-            int imaxx = (int)Math.Max(center.X / axisStep, (pictureBox1.Width - center.X) / axisStep);
+            int imaxx = (int)Math.Max(center.X / axisItemWidth, (pictureBox1.Width - center.X) / axisItemWidth);
             for (int i = 1; i <= imaxx; i++)
             {
                 // floating markers
@@ -131,15 +134,21 @@ namespace Histogrammer
                     y = pictureBox1.Height - axisMarkSize * 2;
 
                 // markers
-                if (center.X + i * axisStep < pictureBox1.Width)
-                    g.DrawLine(penAxis, center.X + i * axisStep, y, center.X + i * axisStep, y + 2 * axisMarkSize);
-                if (center.X + i * axisStep > 0)
-                    g.DrawLine(penAxis, center.X - i * axisStep, y, center.X - i * axisStep, y + 2 * axisMarkSize);
+                if (center.X + i * axisItemWidth < pictureBox1.Width)
+                {
+                    g.DrawLine(penAxisAux, center.X + i * axisItemWidth, 0, center.X + i * axisItemWidth, pictureBox1.Height);
+                    g.DrawLine(penAxisMain, center.X + i * axisItemWidth, y, center.X + i * axisItemWidth, y + 2 * axisMarkSize);
+                }
+                if (center.X + i * axisItemWidth > 0)
+                {
+                    g.DrawLine(penAxisAux, center.X - i * axisItemWidth, 0, center.X - i * axisItemWidth, pictureBox1.Height);
+                    g.DrawLine(penAxisMain, center.X - i * axisItemWidth, y, center.X - i * axisItemWidth, y + 2 * axisMarkSize);
+                }
 
                 // "+" signatures
-                string s = (i * axisStep / zoom.X).ToString();
+                string s = (Math.Round(i * axisItemWidth / zoom.X * 1000) / 1000).ToString();
                 SizeF size = g.MeasureString(s, fontAxis);
-                if (size.Width < axisStep)
+                if (size.Width < axisItemWidth)
                 {
                     // floating signatures
                     y = center.Y + axisSignIndent;
@@ -147,33 +156,33 @@ namespace Histogrammer
                     if (center.Y + axisSignIndent >= pictureBox1.Height - size.Height - axisSignIndent)
                         y = pictureBox1.Height - size.Height - axisSignIndent;
                     //  signatures
-                    g.DrawString(s, fontAxis, brushAxis, center.X + i * axisStep - size.Width / 2, y);
+                    g.DrawString(s, fontAxis, brushAxis, center.X + i * axisItemWidth - size.Width / 2, y);
                 }
                 
                 // "-" signatures
-                s = (-i * axisStep / zoom.X).ToString();
+                s = (-i * axisItemWidth / zoom.X).ToString();
                 size = g.MeasureString(s, fontAxis);
-                if (size.Width < axisStep)
+                if (size.Width < axisItemWidth)
                 {
                     y = center.Y + axisSignIndent;
                     if (center.Y < 0) y = axisSignIndent;
                     if (center.Y + axisSignIndent >= pictureBox1.Height - size.Height - axisSignIndent)
                         y = pictureBox1.Height - size.Height - axisSignIndent;
-                    g.DrawString(s, fontAxis, brushAxis, center.X - i * axisStep - size.Width / 2, y);
+                    g.DrawString(s, fontAxis, brushAxis, center.X - i * axisItemWidth - size.Width / 2, y);
                 }
             }
 
             ///// Y-axis
             // axis
-            g.DrawLine(penAxis, center.X, 0, center.X, pictureBox1.Height);
+            g.DrawLine(penAxisMain, center.X, 0, center.X, pictureBox1.Height);
             // markers
-            g.DrawLines(penAxis, new PointF[] {
+            g.DrawLines(penAxisMain, new PointF[] {
                 new PointF(center.X - 4, 8),
                 new PointF(center.X, 0),
                 new PointF(center.X + 4, 8)
             });
             // markers & signatures
-            int imaxy = (int)Math.Max(center.Y / axisStep, (pictureBox1.Height - center.Y) / axisStep);
+            int imaxy = (int)Math.Max(center.Y / axisItemWidth, (pictureBox1.Height - center.Y) / axisItemWidth);
             for (int i = 1; i <= imaxy; i++)
             {
                 // floating markers
@@ -183,15 +192,21 @@ namespace Histogrammer
                     x = pictureBox1.Width - axisMarkSize * 2;
 
                 // markers
-                if (center.Y + i * axisStep < pictureBox1.Height)
-                    g.DrawLine(penAxis, x, center.Y + i * axisStep, x + 2 * axisMarkSize, center.Y + i * axisStep);
-                if (center.Y + i * axisStep > 0)
-                    g.DrawLine(penAxis, x, center.Y - i * axisStep, x + 2 * axisMarkSize, center.Y - i * axisStep);
+                if (center.Y + i * axisItemWidth < pictureBox1.Height)
+                {
+                    g.DrawLine(penAxisAux, 0, center.Y + i * axisItemWidth, pictureBox1.Width, center.Y + i * axisItemWidth);
+                    g.DrawLine(penAxisMain, x, center.Y + i * axisItemWidth, x + 2 * axisMarkSize, center.Y + i * axisItemWidth);
+                }
+                if (center.Y + i * axisItemWidth > 0)
+                {
+                    g.DrawLine(penAxisAux, 0, center.Y - i * axisItemWidth, pictureBox1.Width, center.Y - i * axisItemWidth);
+                    g.DrawLine(penAxisMain, x, center.Y - i * axisItemWidth, x + 2 * axisMarkSize, center.Y - i * axisItemWidth);
+                }
                 
                 // "+" signatures
-                string s = (i * axisStep / zoom.Y).ToString();
+                string s = (i * axisItemWidth / zoom.Y).ToString();
                 SizeF size = g.MeasureString(s, fontAxis);
-                if (size.Height < axisStep)
+                if (size.Height < axisItemWidth)
                 {
                     // floating signatures
                     x = center.X - size.Width - axisSignIndent;
@@ -199,13 +214,13 @@ namespace Histogrammer
                     if (center.X >= pictureBox1.Width)
                         x = pictureBox1.Width - size.Width - axisSignIndent;
                     //signatures
-                    g.DrawString(s, fontAxis, brushAxis, x, center.Y - i * axisStep);
+                    g.DrawString(s, fontAxis, brushAxis, x, center.Y - i * axisItemWidth);
                 }
 
                 // "-" signatures
-                s = (-i * axisStep / zoom.Y).ToString();
+                s = (-i * axisItemWidth / zoom.Y).ToString();
                 size = g.MeasureString(s, fontAxis);
-                if (size.Height < axisStep)
+                if (size.Height < axisItemWidth)
                 {
                     // floating signatures
                     x = center.X - size.Width - axisSignIndent;
@@ -213,7 +228,7 @@ namespace Histogrammer
                     if (center.X >= pictureBox1.Width)
                         x = pictureBox1.Width - size.Width - axisSignIndent;
                     //signatures
-                    g.DrawString(s, fontAxis, brushAxis, x, center.Y + i * axisStep);
+                    g.DrawString(s, fontAxis, brushAxis, x, center.Y + i * axisItemWidth);
                 }
             }
             #endregion
