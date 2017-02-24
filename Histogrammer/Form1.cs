@@ -110,6 +110,7 @@ namespace Histogrammer
                 new PointF(pictureBox1.Width, center.Y),
                 new PointF(pictureBox1.Width - 8, center.Y + 4)
             });
+
             for (float i = center.X + axisStep; i < pictureBox1.Width; i += axisStep)
             {
                 float y = center.Y - axisMarkSize;
