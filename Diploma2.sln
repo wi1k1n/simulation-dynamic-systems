@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworksTest", "NetworksTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Histogrammer", "Histogrammer\Histogrammer.csproj", "{DDA1CCE6-8A6F-49C6-9A43-7ABEDDF165CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFNetworkDistributionCheck", "SFNetworkDistributionCheck\SFNetworkDistributionCheck.csproj", "{7DBC1DEA-4772-44FD-A336-0626DDA3A76C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{DDA1CCE6-8A6F-49C6-9A43-7ABEDDF165CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDA1CCE6-8A6F-49C6-9A43-7ABEDDF165CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDA1CCE6-8A6F-49C6-9A43-7ABEDDF165CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DBC1DEA-4772-44FD-A336-0626DDA3A76C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DBC1DEA-4772-44FD-A336-0626DDA3A76C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DBC1DEA-4772-44FD-A336-0626DDA3A76C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DBC1DEA-4772-44FD-A336-0626DDA3A76C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

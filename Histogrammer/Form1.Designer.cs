@@ -1,4 +1,4 @@
-﻿namespace Histogrammer
+﻿namespace Diploma2
 {
     partial class Form1
     {
@@ -30,15 +30,21 @@
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.отрисовкаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.качествоToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.скоростьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.отрисовкаToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1078, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1078, 28);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -46,9 +52,9 @@
             // 
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 24);
+            this.pictureBox1.Location = new System.Drawing.Point(0, 28);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1078, 543);
+            this.pictureBox1.Size = new System.Drawing.Size(1078, 539);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
@@ -56,6 +62,31 @@
             this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
             this.pictureBox1.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseWheel);
+            // 
+            // отрисовкаToolStripMenuItem
+            // 
+            this.отрисовкаToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.качествоToolStripMenuItem,
+            this.скоростьToolStripMenuItem});
+            this.отрисовкаToolStripMenuItem.Name = "отрисовкаToolStripMenuItem";
+            this.отрисовкаToolStripMenuItem.Size = new System.Drawing.Size(95, 24);
+            this.отрисовкаToolStripMenuItem.Text = "Отрисовка";
+            // 
+            // качествоToolStripMenuItem
+            // 
+            this.качествоToolStripMenuItem.Checked = true;
+            this.качествоToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.качествоToolStripMenuItem.Name = "качествоToolStripMenuItem";
+            this.качествоToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.качествоToolStripMenuItem.Text = "Качество";
+            this.качествоToolStripMenuItem.Click += new System.EventHandler(this.качествоToolStripMenuItem_Click);
+            // 
+            // скоростьToolStripMenuItem
+            // 
+            this.скоростьToolStripMenuItem.Name = "скоростьToolStripMenuItem";
+            this.скоростьToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.скоростьToolStripMenuItem.Text = "Скорость";
+            this.скоростьToolStripMenuItem.Click += new System.EventHandler(this.скоростьToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -73,6 +104,8 @@
             this.Text = "Histogram Visualizer";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.Form1_Resize);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -83,6 +116,9 @@
 
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.ToolStripMenuItem отрисовкаToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem качествоToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem скоростьToolStripMenuItem;
     }
 }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Diploma2
 {
@@ -31,11 +32,24 @@ namespace Diploma2
             {
                 Weight = weight;
             }
+
+            public void Serialize(Stream str)
+            {
+                str.Write(BitConverter.GetBytes(From), 0, 4);
+                str.Write(BitConverter.GetBytes(To), 0, 4);
+                str.Write(BitConverter.GetBytes(Weight), 0, 4);
+            }
+
+            public override string ToString()
+            {
+                return "(" + From + "; " + To + "): " + Weight;
+            }
         }
 
         [Serializable]
         public abstract class Network
         {
+            // TODO: Change nodeCount when Edges is changed
             private int nodeCount = 0;
             public int NodeCount
             {
@@ -61,6 +75,13 @@ namespace Diploma2
             public Network(IEnumerable<Edge> edges)
             {
                 Edges = new List<Edge>(edges);
+            }
+
+            public void Serialize(Stream str)
+            {
+                str.Write(BitConverter.GetBytes(nodeCount), 0, 4);
+                foreach (Edge edg in Edges)
+                    edg.Serialize(str);
             }
         }
     }

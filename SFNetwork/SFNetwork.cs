@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Diploma2.Networks;
+using System.IO;
 
 namespace Diploma2
 {
@@ -12,20 +13,23 @@ namespace Diploma2
     {
         public int Multiplier { get; private set; }
 
+        public SFNetwork() { }
         public SFNetwork(int node_count, int edge_multiplier)
         {
-            generateNetwork(node_count, edge_multiplier, new Random());
+            Multiplier = edge_multiplier;
+            Generate(node_count, edge_multiplier, new Random());
         }
         public SFNetwork(int node_count, int edge_multiplier, int seed)
         {
-            generateNetwork(node_count, edge_multiplier, new Random(seed));
+            Multiplier = edge_multiplier;
+            Generate(node_count, edge_multiplier, new Random(seed));
         }
-        private void generateNetwork(int n, int k, Random rnd)
+        public void Generate(int node_count, int edge_multiplier, Random rnd)
         {
             Edges = new List<Edge>();
 
             // Generating LCD diagram
-            int m = n * k,
+            int m = node_count * edge_multiplier,
                 l = 2 * m; // Length of lcd to create G(n, k)
             List<int> alphabet = new List<int>(); // Alphabet to get random nonreccuring integers from it
             for (int i = 0; i < l; i++) alphabet.Add(i);
@@ -63,6 +67,12 @@ namespace Diploma2
                 if (!Edges.Any(x => { return x.From == edg.From && x.To == edg.To; })) Edges.Add(edg);
                 else Edges.Find(x => { return x.From == edg.From && x.To == edg.To; }).Weight++;
             }
+        }
+
+        public new void Serialize(Stream str)
+        {
+            str.Write(BitConverter.GetBytes(Multiplier), 0, 4);
+            base.Serialize(str);
         }
     }
 }

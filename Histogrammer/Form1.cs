@@ -8,15 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Histogrammer
+namespace Diploma2
 {
     public partial class Form1 : Form
     {
         PointF center = new PointF();
-        double zoomX = 1;
+        double zoomX = 1; // Local value of each axisItem
         double zoomY = 1;
-        //PointF zoom = new PointF(1, 1); // Global value of grid item
-        float zoomStep = 1.1f; // Rate of changing itemWidth
+        float zoomStep = 1.8f; // Rate of changing itemWidth
         Point lineNumber = new Point(5, 5);
         float axisItemMin = 64, axisItemMax = 0;
         float axisItemWidth = 64; // Grid item size in pixels
@@ -34,19 +33,11 @@ namespace Histogrammer
         Brush brushSignAxis = Brushes.Gray;
         Brush brushSignAxisBg = new SolidBrush(Color.Gray);
 
-        Brush brushPoint1 = Brushes.Red;
-        float radiusPoint1 = 2;
-
-        List<PointF> points = new List<PointF>();
+        Dictionary<int, double> data = new Dictionary<int, double>();
 
         public Form1()
         {
             InitializeComponent();
-        }
-
-        public void Visualize(float[] x, float[] y)
-        {
-            pictureBox1.Invalidate();
         }
 
 
@@ -57,11 +48,17 @@ namespace Histogrammer
             center = new PointF(ClientRectangle.Width / 2, ClientRectangle.Height / 2);
             axisItemMax = axisItemMin * 2 / zoomStep;
 
-            points = new List<PointF>();
-            for (float i = 0; i <= 200; i+=0.5f)
+            SFNetworkGenerator sfng = new SFNetworkGenerator();
+            System.Threading.CancellationTokenSource cancel = new System.Threading.CancellationTokenSource();
+            Timer timer = new Timer();
+            timer.Interval = 1000;
+            timer.Tick += (obj, evt) => { string frmt = @"hh\:mm\:ss"; Text = "Progress: " + (int)(sfng.Progress * 10000) / 100.0 + "%   Left: " + sfng.TimeLeft.ToString(frmt) + "   Remaining: " + sfng.TimeRemaining.ToString(frmt); };
+            new Task(() =>
             {
-                points.Add(new PointF(i, i));
-            }
+                data = sfng.GenerateSFNetworksAverage(1000, 3, 10, cancel.Token, 3);
+                timer.Stop();
+            }).Start();
+            timer.Start();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -75,7 +72,6 @@ namespace Histogrammer
             mouseClick.Y = e.Location.Y - center.Y;
             isMoving = true;
         }
-
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
             if (isMoving)
@@ -86,12 +82,10 @@ namespace Histogrammer
             }
             //Text = center.ToString();
         }
-
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
             isMoving = false;
         }
-
         private void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
         {
             double zoomMltX = 2;
@@ -103,7 +97,7 @@ namespace Histogrammer
             while (zoomCopyX > 5) zoomCopyX /= 10;
             while (zoomCopyY > 5) zoomCopyY /= 10;
 
-            Text = zoomX.ToString() + "; " + zoomY + " " + zoomMltX.ToString() + "; " + zoomMltY;
+            //Text = zoomX.ToString() + "; " + zoomY + " " + zoomMltX.ToString() + "; " + zoomMltY;
 
             // Zoom In
             if (e.Delta > 0)
@@ -157,7 +151,12 @@ namespace Histogrammer
             PointF axisElementWidth = new PointF(axisItemWidth / lineNumber.X, axisItemWidth / lineNumber.Y);
 
             Graphics g = e.Graphics;
-            g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+            if (качествоToolStripMenuItem.Checked)
+                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+            if (скоростьToolStripMenuItem.Checked)
+                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+
+            //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
             #region Drawing Axises
             // TODO: optimize stepping
@@ -310,16 +309,55 @@ namespace Histogrammer
                 new PointF(center.X + 3, 8)
             });
             #endregion
-            
+            //Text = sw.Elapsed.ToString();
+            PointF pLast = new PointF();
+            bool first = true;
+            for (int i = 0; i < data.Count; i++)
+            {
+                PointF p = Local2Global(i, (float)data[i]);
+                if (IsOnScreen(p))
+                {
+                    if (!first)
+                        g.DrawLine(Pens.Blue, pLast, p);
+                    pLast = new PointF(p.X, p.Y);
+                    first = false;
+                    g.FillEllipse(Brushes.Red, p.X - 2, p.Y - 2, 4, 4);
+                }
+            }
         }
 
-        private PointF Local2Global(float x, float y)
+        private void качествоToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            return new PointF((float)(center.X + x * axisItemWidth / zoomX), (float)(center.Y - y * axisItemWidth / zoomY));
+            foreach(ToolStripMenuItem it in отрисовкаToolStripMenuItem.DropDownItems) it.Checked = false;
+            качествоToolStripMenuItem.Checked = true;
+        }
+        private void скоростьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (ToolStripMenuItem it in отрисовкаToolStripMenuItem.DropDownItems) it.Checked = false;
+            скоростьToolStripMenuItem.Checked = true;
+        }
+
+
+        private bool IsOnScreen(PointF p, float indentX = 0, float indentY = 0)
+        {
+            return p.X >= -indentX && p.X <= pictureBox1.Width + indentX && p.Y >= -indentY && p.Y <= pictureBox1.Height + indentY;
+        }
+
+        private PointF Local2Global(float localX, float localY)
+        {
+            return new PointF((float)(center.X + localX * axisItemWidth / zoomX), (float)(center.Y - localY * axisItemWidth / zoomY));
         }
         private PointF Local2Global(PointF localPoint)
         {
             return Local2Global(localPoint.X, localPoint.Y);
+        }
+        private PointF Global2Local(float globalX, float globalY)
+        {
+            return new PointF((float)(zoomX * (globalX - center.X) / axisItemWidth), (float)(zoomY * (globalY - center.Y) / axisItemWidth));
+        }
+        private PointF Global2Local(PointF globalPoint)
+        {
+            return Global2Local(globalPoint.X, globalPoint.Y);
         }
     }
 }
