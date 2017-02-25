@@ -12,21 +12,21 @@ namespace Diploma2
 {
     public partial class Form1 : Form
     {
-        PointF center = new PointF();
+        PointD center = new PointD();
         double zoomX = 1; // Local value of each axisItem
         double zoomY = 1;
-        float zoomStep = 1.8f; // Rate of changing itemWidth
+        float zoomStep = 1.15f; // Rate of changing itemWidth
         Point lineNumber = new Point(5, 5);
-        float axisItemMin = 64, axisItemMax = 0;
-        float axisItemWidth = 64; // Grid item size in pixels
+        float axisItemMin = 128, axisItemMax = 0;
+        float axisItemWidth = 128; // Grid item size in pixels
 
-        float axisMarkSize = 2;
-        float axisSignIndent = 8;
+        SizeD axisArrowSize = new SizeD(8, 3);
+        float axisSignIndent = 14;
 
-        PointF mouseClick = new PointF();
+        PointD mouseClick = new PointD();
         bool isMoving = false;
 
-        Pen penAxisMain = new Pen(Color.FromArgb(160, 160, 160), 1f);
+        Pen penAxisMain = new Pen(Color.FromArgb(120, 120, 120), 1f);
         Pen penAxisAux1 = new Pen(Color.FromArgb(200, 200, 200), 1f);
         Pen penAxisAux2 = new Pen(Color.FromArgb(240, 240, 240), 1f);
         Font fontSignAxis = new Font("Segoe UI", 8f);
@@ -45,20 +45,24 @@ namespace Diploma2
         private void Form1_Load(object sender, EventArgs e)
         {
             brushSignAxisBg = new SolidBrush(BackColor);
-            center = new PointF(ClientRectangle.Width / 2, ClientRectangle.Height / 2);
+            center = new PointD(ClientRectangle.Width / 2, ClientRectangle.Height / 2);
             axisItemMax = axisItemMin * 2 / zoomStep;
 
-            SFNetworkGenerator sfng = new SFNetworkGenerator();
-            System.Threading.CancellationTokenSource cancel = new System.Threading.CancellationTokenSource();
-            Timer timer = new Timer();
-            timer.Interval = 1000;
-            timer.Tick += (obj, evt) => { string frmt = @"hh\:mm\:ss"; Text = "Progress: " + (int)(sfng.Progress * 10000) / 100.0 + "%   Left: " + sfng.TimeLeft.ToString(frmt) + "   Remaining: " + sfng.TimeRemaining.ToString(frmt); };
-            new Task(() =>
-            {
-                data = sfng.GenerateSFNetworksAverage(1000, 3, 10, cancel.Token, 3);
-                timer.Stop();
-            }).Start();
-            timer.Start();
+            //SFNetworkGenerator sfng = new SFNetworkGenerator();
+            //System.Threading.CancellationTokenSource cancel = new System.Threading.CancellationTokenSource();
+            //Timer timer = new Timer();
+            //timer.Interval = 1000;
+            //timer.Tick += (obj, evt) => { string frmt = @"hh\:mm\:ss"; Text = "Progress: " + (int)(sfng.Progress * 10000) / 100.0 + "%   Left: " + sfng.TimeLeft.ToString(frmt) + "   Remaining: " + sfng.TimeRemaining.ToString(frmt); };
+            //new Task(() =>
+            //{
+            //    data = sfng.GenerateSFNetworksAverage(1000, 3, 10, cancel.Token, 3);
+            //    timer.Stop();
+            //}).Start();
+            //timer.Start();
+
+            Random rnd = new Random();
+            for (int i = 0; i <= 10000; i++)
+                data.Add(i, rnd.Next(0, 10000));
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -148,6 +152,7 @@ namespace Diploma2
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
+            // Vector of width (in pixels) of each segment between 2 aux2 lines
             PointF axisElementWidth = new PointF(axisItemWidth / lineNumber.X, axisItemWidth / lineNumber.Y);
 
             Graphics g = e.Graphics;
@@ -156,9 +161,13 @@ namespace Diploma2
             if (скоростьToolStripMenuItem.Checked)
                 g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
 
-            //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            ///////////////////////////////////////////
+            ///////////// Drawing axises //////////////
+            ///////////////////////////////////////////
+
 
             #region Drawing Axises
+            /*
             // TODO: optimize stepping
 
             ///// X-axis
@@ -308,20 +317,101 @@ namespace Diploma2
                 new PointF(center.X, 0),
                 new PointF(center.X + 3, 8)
             });
+            */
             #endregion
-            //Text = sw.Elapsed.ToString();
-            PointF pLast = new PointF();
+            #region Drawing Axises 2
+            ///// Vertical auxiliary lines
+            // dinitx - pixels that are needed to gain first integer (divisible by zoom) to the left from global 0
+            double dinitx = (int)(center.X / axisItemWidth) * axisItemWidth - center.X;
+            // imaxx - the number of graph steps that are needed to be pictured with lines and signs
+            int imaxx = (int)(pictureBox1.Width / axisItemWidth) + 1;
+            // startValue - the local value of the point corresponding to global: global0-dinitx
+            double startValueX = -(center.X + dinitx) / (axisItemWidth / zoomX);
+            for (int i = -1; i <= imaxx; i++)
+            {
+                g.DrawLine(penAxisAux1, (float)(i * axisItemWidth - dinitx), 0, (float)(i * axisItemWidth - dinitx), pictureBox1.Height);
+                for (int j = 1; j < lineNumber.X; j++)
+                    g.DrawLine(penAxisAux2, (float)(i * axisItemWidth - dinitx + j * axisElementWidth.X), 0, (float)(i * axisItemWidth - dinitx + j * axisElementWidth.X), pictureBox1.Height);
+
+                string s = (startValueX + i * zoomX).ToString();
+                SizeF size = g.MeasureString(s, fontSignAxis);
+
+                if (size.Width < axisItemWidth && startValueX + i * zoomX != 0)
+                {
+                    double y = center.Y + axisSignIndent;
+                    if (center.Y < 0) y = axisSignIndent;
+                    if (center.Y + axisSignIndent >= pictureBox1.Height - size.Height - axisSignIndent)
+                        y = pictureBox1.Height - size.Height - axisSignIndent;
+
+                    g.FillRectangle(brushSignAxisBg, (float)(i * axisItemWidth - dinitx - size.Width / 2), (float)y, size.Width, size.Height);
+                    g.DrawString(s, fontSignAxis, brushSignAxis, (float)(i * axisItemWidth - dinitx - size.Width / 2), (float)y);
+                }
+            }
+            ///// Horizontal auxiliary lines
+            double dinity = (int)(center.Y / axisItemWidth) * axisItemWidth - center.Y;
+            int imaxy = (int)(pictureBox1.Height / axisItemWidth) + 1;
+            double startValueY = -(center.Y + dinity) / (axisItemWidth / zoomY);
+            for (int i = -1; i <= imaxy; i++)
+            {
+                g.DrawLine(penAxisAux1, 0, (float)(i * axisItemWidth - dinity), pictureBox1.Width, (float)(i * axisItemWidth - dinity));
+                for (int j = 1; j < lineNumber.X; j++)
+                    g.DrawLine(penAxisAux2, 0, (float)(i * axisItemWidth - dinity + j * axisElementWidth.Y), pictureBox1.Width, (float)(i * axisItemWidth - dinity + j * axisElementWidth.Y));
+
+                string s = (-(startValueY + i * zoomY)).ToString();
+                SizeF size = g.MeasureString(s, fontSignAxis);
+
+                if (size.Width < axisItemWidth && startValueY + i * zoomY != 0)
+                {
+                    double x = center.X - size.Width - axisSignIndent;
+                    if (x < axisSignIndent) x = axisSignIndent;
+                    if (center.X >= pictureBox1.Width)
+                        x = pictureBox1.Width - size.Width - axisSignIndent;
+
+                    g.FillRectangle(brushSignAxisBg, (float)x, (float)(i * axisItemWidth - dinity - size.Height / 2), size.Width, size.Height);
+                    g.DrawString(s, fontSignAxis, brushSignAxis, (float)x, (float)(i * axisItemWidth - dinity - size.Height / 2));
+                }
+            }
+
+            ///// X-axis
+            if (IsGlobalOnScreen(0, center.Y, axisArrowSize.Width, axisArrowSize.Width))
+            {
+                g.DrawLine(penAxisMain, 0, (float)center.Y, pictureBox1.Width, (float)center.Y);
+                g.DrawLines(penAxisMain, new PointF[] {
+                    new PointF(pictureBox1.Width - 8, (float)center.Y - 3),
+                    new PointF(pictureBox1.Width, (float)center.Y),
+                    new PointF(pictureBox1.Width - 8, (float)(center.Y + 3))
+                });
+            }
+            ///// Y-axis
+            if (IsGlobalOnScreen(center.X, 0, axisArrowSize.Width, axisArrowSize.Width))
+            {
+                g.DrawLine(penAxisMain, (float)center.X, 0, (float)center.X, pictureBox1.Height);
+                g.DrawLines(penAxisMain, new PointF[] {
+                    new PointF((float)(center.X - axisArrowSize.Height), (float)axisArrowSize.Width),
+                    new PointF((float)center.X, 0),
+                    new PointF((float)(center.X + axisArrowSize.Height), (float)axisArrowSize.Width)
+                });
+            }
+
+            #endregion
+
+            ///////////////////////////////////////////
+            /////////// End Drawing axises ////////////
+            ///////////////////////////////////////////
+
+            // TODO: overflow exception occures sometimes
+            PointD pLast = new PointD();
             bool first = true;
             for (int i = 0; i < data.Count; i++)
             {
-                PointF p = Local2Global(i, (float)data[i]);
-                if (IsOnScreen(p))
+                PointD p = Local2Global(i, (float)data[i]);
+                if (IsGlobalOnScreen(p))
                 {
-                    if (!first)
-                        g.DrawLine(Pens.Blue, pLast, p);
-                    pLast = new PointF(p.X, p.Y);
-                    first = false;
-                    g.FillEllipse(Brushes.Red, p.X - 2, p.Y - 2, 4, 4);
+                    //if (!first)
+                    //    g.DrawLine(Pens.Blue, (PointF)pLast, (PointF)p);
+                    //pLast = new PointD(p.X, p.Y);
+                    //first = false;
+                    g.FillEllipse(Brushes.Red, (float)(p.X - 2), (float)(p.Y - 2), 4, 4);
                 }
             }
         }
@@ -338,24 +428,28 @@ namespace Diploma2
         }
 
 
-        private bool IsOnScreen(PointF p, float indentX = 0, float indentY = 0)
+        private bool IsGlobalOnScreen(double x, double y, double indentX = 0, double indentY = 0)
         {
-            return p.X >= -indentX && p.X <= pictureBox1.Width + indentX && p.Y >= -indentY && p.Y <= pictureBox1.Height + indentY;
+            return x >= -indentX && x <= pictureBox1.Width + indentX && y >= -indentY && y <= pictureBox1.Height + indentY;
+        }
+        private bool IsGlobalOnScreen(PointD p, double indentX = 0, double indentY = 0)
+        {
+            return IsGlobalOnScreen(p.X, p.Y, indentX, indentY);
         }
 
-        private PointF Local2Global(float localX, float localY)
+        private PointD Local2Global(double localX, double localY)
         {
-            return new PointF((float)(center.X + localX * axisItemWidth / zoomX), (float)(center.Y - localY * axisItemWidth / zoomY));
+            return new PointD((float)(center.X + localX * axisItemWidth / zoomX), (float)(center.Y - localY * axisItemWidth / zoomY));
         }
-        private PointF Local2Global(PointF localPoint)
+        private PointD Local2Global(PointD localPoint)
         {
             return Local2Global(localPoint.X, localPoint.Y);
         }
-        private PointF Global2Local(float globalX, float globalY)
+        private PointD Global2Local(double globalX, double globalY)
         {
-            return new PointF((float)(zoomX * (globalX - center.X) / axisItemWidth), (float)(zoomY * (globalY - center.Y) / axisItemWidth));
+            return new PointD((float)(zoomX * (globalX - center.X) / axisItemWidth), (float)(zoomY * (globalY - center.Y) / axisItemWidth));
         }
-        private PointF Global2Local(PointF globalPoint)
+        private PointD Global2Local(PointD globalPoint)
         {
             return Global2Local(globalPoint.X, globalPoint.Y);
         }
