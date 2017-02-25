@@ -13,8 +13,9 @@ namespace Diploma2
     public partial class Form1 : Form
     {
         PointD center = new PointD();
-        double zoomX = 1; // Local value of each axisItem
-        double zoomY = 1;
+        long zoomX = 1; // Local value of each axisItem
+        long zoomY = 1;
+        Point zoomDir = new Point(1, 1);
         float zoomStep = 1.15f; // Rate of changing itemWidth
         Point lineNumber = new Point(5, 5);
         float axisItemMin = 128, axisItemMax = 0;
@@ -48,21 +49,26 @@ namespace Diploma2
             center = new PointD(ClientRectangle.Width / 2, ClientRectangle.Height / 2);
             axisItemMax = axisItemMin * 2 / zoomStep;
 
-            //SFNetworkGenerator sfng = new SFNetworkGenerator();
-            //System.Threading.CancellationTokenSource cancel = new System.Threading.CancellationTokenSource();
-            //Timer timer = new Timer();
-            //timer.Interval = 1000;
-            //timer.Tick += (obj, evt) => { string frmt = @"hh\:mm\:ss"; Text = "Progress: " + (int)(sfng.Progress * 10000) / 100.0 + "%   Left: " + sfng.TimeLeft.ToString(frmt) + "   Remaining: " + sfng.TimeRemaining.ToString(frmt); };
-            //new Task(() =>
-            //{
-            //    data = sfng.GenerateSFNetworksAverage(1000, 3, 10, cancel.Token, 3);
-            //    timer.Stop();
-            //}).Start();
-            //timer.Start();
+            SFNetworkGenerator sfng = new SFNetworkGenerator();
+            System.Threading.CancellationTokenSource cancel = new System.Threading.CancellationTokenSource();
+            Timer timer = new Timer();
+            timer.Interval = 1000;
+            timer.Tick += (obj, evt) => { string frmt = @"hh\:mm\:ss"; Text = "Progress: " + (int)(sfng.Progress * 10000) / 100.0 + "%   Left: " + sfng.TimeLeft.ToString(frmt) + "   Remaining: " + sfng.TimeRemaining.ToString(frmt); };
+            new Task(() =>
+            {
+                data = sfng.GenerateSFNetworksAverage(4000, 3, 1000, cancel.Token, 3);
+                timer.Stop();
 
-            Random rnd = new Random();
-            for (int i = 0; i <= 10000; i++)
-                data.Add(i, rnd.Next(0, 10000));
+                System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                using (System.IO.FileStream fs = System.IO.File.OpenWrite("datastat"))
+                        bf.Serialize(fs, data);
+            }).Start();
+            timer.Start();
+
+            //Random rnd = new Random();
+            //for (int i = 0; i <= 10000; i++)
+            //    //data.Add(i, rnd.Next(0, 10000));
+            //    data.Add(i, i);
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -94,14 +100,12 @@ namespace Diploma2
         {
             double zoomMltX = 2;
             double zoomMltY = 2;
-            double zoomCopyX = zoomX;
-            double zoomCopyY = zoomY;
+            double zoomCopyX = Math.Pow(zoomX, zoomDir.X);
+            double zoomCopyY = Math.Pow(zoomY, zoomDir.Y);
             while (zoomCopyX < 1) zoomCopyX *= 10;
             while (zoomCopyY < 1) zoomCopyY *= 10;
             while (zoomCopyX > 5) zoomCopyX /= 10;
             while (zoomCopyY > 5) zoomCopyY /= 10;
-
-            //Text = zoomX.ToString() + "; " + zoomY + " " + zoomMltX.ToString() + "; " + zoomMltY;
 
             // Zoom In
             if (e.Delta > 0)
@@ -127,8 +131,10 @@ namespace Diploma2
                 if (zoomCopyX == 5) zoomMltX = 2.5;
                 if (zoomCopyY == 5) zoomMltY = 2.5;
                 axisItemWidth = axisItemMin;
-                zoomX /= zoomMltX;
-                zoomY /= zoomMltY;
+                if (zoomDir.X == 1 && zoomX / zoomMltX < 1) zoomDir.X = -1;
+                if (zoomDir.Y == 1 && zoomY / zoomMltY < 1) zoomDir.Y = -1;
+                zoomX = (long)(zoomX * Math.Pow(zoomMltX, -zoomDir.X));
+                zoomY = (long)(zoomY * Math.Pow(zoomMltY, -zoomDir.Y));
                 center.X = (float)(e.X + (center.X - e.X) * zoomMltX * axisItemWidth / w);
                 center.Y = (float)(e.Y + (center.Y - e.Y) * zoomMltY * axisItemWidth / w);
             }
@@ -140,14 +146,18 @@ namespace Diploma2
                 if (zoomCopyX == 1) lineNumber.X = 4; else lineNumber.X = 5;
                 if (zoomCopyY == 1) lineNumber.Y = 4; else lineNumber.Y = 5;
                 axisItemWidth = axisItemMax;
-                zoomX *= zoomMltX;
-                zoomY *= zoomMltY;
+                if (zoomDir.X == -1 && 1 / zoomX * zoomMltX > 1) zoomDir.X = 1;
+                if (zoomDir.Y == -1 && 1 / zoomY * zoomMltY > 1) zoomDir.Y = 1;
+                zoomX = (long)(zoomX / Math.Pow(zoomMltX, -zoomDir.X));
+                zoomY = (long)(zoomY / Math.Pow(zoomMltY, -zoomDir.Y));
                 center.X = (float)(e.X + (center.X - e.X) / zoomMltX * axisItemWidth / w);
                 center.Y = (float)(e.Y + (center.Y - e.Y) / zoomMltY * axisItemWidth / w);
             }
             //k = new PointF((axisItemWidth / zoom.X) / k.X, (axisItemWidth / zoom.Y) / k.Y);
 
             pictureBox1.Invalidate();
+
+            //Text = zoomX + "; " + zoomY + " " + zoomDir;
         }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
@@ -322,54 +332,26 @@ namespace Diploma2
             #region Drawing Axises 2
             ///// Vertical auxiliary lines
             // dinitx - pixels that are needed to gain first integer (divisible by zoom) to the left from global 0
-            double dinitx = (int)(center.X / axisItemWidth) * axisItemWidth - center.X;
+            double dinitx = ((int)(center.X / axisItemWidth) - center.X / axisItemWidth) * axisItemWidth;
             // imaxx - the number of graph steps that are needed to be pictured with lines and signs
             int imaxx = (int)(pictureBox1.Width / axisItemWidth) + 1;
             // startValue - the local value of the point corresponding to global: global0-dinitx
-            double startValueX = -(center.X + dinitx) / (axisItemWidth / zoomX);
+            double startValueX = -(center.X + dinitx) / (axisItemWidth / Math.Pow(zoomX, zoomDir.X));
             for (int i = -1; i <= imaxx; i++)
             {
                 g.DrawLine(penAxisAux1, (float)(i * axisItemWidth - dinitx), 0, (float)(i * axisItemWidth - dinitx), pictureBox1.Height);
                 for (int j = 1; j < lineNumber.X; j++)
                     g.DrawLine(penAxisAux2, (float)(i * axisItemWidth - dinitx + j * axisElementWidth.X), 0, (float)(i * axisItemWidth - dinitx + j * axisElementWidth.X), pictureBox1.Height);
-
-                string s = (startValueX + i * zoomX).ToString();
-                SizeF size = g.MeasureString(s, fontSignAxis);
-
-                if (size.Width < axisItemWidth && startValueX + i * zoomX != 0)
-                {
-                    double y = center.Y + axisSignIndent;
-                    if (center.Y < 0) y = axisSignIndent;
-                    if (center.Y + axisSignIndent >= pictureBox1.Height - size.Height - axisSignIndent)
-                        y = pictureBox1.Height - size.Height - axisSignIndent;
-
-                    g.FillRectangle(brushSignAxisBg, (float)(i * axisItemWidth - dinitx - size.Width / 2), (float)y, size.Width, size.Height);
-                    g.DrawString(s, fontSignAxis, brushSignAxis, (float)(i * axisItemWidth - dinitx - size.Width / 2), (float)y);
-                }
             }
             ///// Horizontal auxiliary lines
-            double dinity = (int)(center.Y / axisItemWidth) * axisItemWidth - center.Y;
+            double dinity = ((int)(center.Y / axisItemWidth) - center.Y / axisItemWidth) * axisItemWidth;
             int imaxy = (int)(pictureBox1.Height / axisItemWidth) + 1;
-            double startValueY = -(center.Y + dinity) / (axisItemWidth / zoomY);
+            double startValueY = -(center.Y + dinity) / (axisItemWidth / Math.Pow(zoomY, zoomDir.X));
             for (int i = -1; i <= imaxy; i++)
             {
                 g.DrawLine(penAxisAux1, 0, (float)(i * axisItemWidth - dinity), pictureBox1.Width, (float)(i * axisItemWidth - dinity));
                 for (int j = 1; j < lineNumber.X; j++)
                     g.DrawLine(penAxisAux2, 0, (float)(i * axisItemWidth - dinity + j * axisElementWidth.Y), pictureBox1.Width, (float)(i * axisItemWidth - dinity + j * axisElementWidth.Y));
-
-                string s = (-(startValueY + i * zoomY)).ToString();
-                SizeF size = g.MeasureString(s, fontSignAxis);
-
-                if (size.Width < axisItemWidth && startValueY + i * zoomY != 0)
-                {
-                    double x = center.X - size.Width - axisSignIndent;
-                    if (x < axisSignIndent) x = axisSignIndent;
-                    if (center.X >= pictureBox1.Width)
-                        x = pictureBox1.Width - size.Width - axisSignIndent;
-
-                    g.FillRectangle(brushSignAxisBg, (float)x, (float)(i * axisItemWidth - dinity - size.Height / 2), size.Width, size.Height);
-                    g.DrawString(s, fontSignAxis, brushSignAxis, (float)x, (float)(i * axisItemWidth - dinity - size.Height / 2));
-                }
             }
 
             ///// X-axis
@@ -393,6 +375,40 @@ namespace Diploma2
                 });
             }
 
+            // Signatures for X-axis
+            for (int i = -1; i <= imaxx; i++)
+            {
+                string s = (startValueX + i * Math.Pow(zoomX, zoomDir.X)).ToString();
+                SizeF size = g.MeasureString(s, fontSignAxis);
+
+                if (size.Width < axisItemWidth && Math.Abs(startValueX + i * Math.Pow(zoomX, zoomDir.X)) > 1e-8)
+                {
+                    double y = center.Y + axisSignIndent;
+                    if (center.Y < 0) y = axisSignIndent;
+                    if (center.Y + axisSignIndent >= pictureBox1.Height - size.Height - axisSignIndent)
+                        y = pictureBox1.Height - size.Height - axisSignIndent;
+
+                    g.FillRectangle(brushSignAxisBg, (float)(i * axisItemWidth - dinitx - size.Width / 2), (float)y, size.Width, size.Height);
+                    g.DrawString(s, fontSignAxis, brushSignAxis, (float)(i * axisItemWidth - dinitx - size.Width / 2), (float)y);
+                }
+            }
+            // Signatures for Y-axis
+            for (int i = -1; i <= imaxy; i++)
+            {
+                string s = (-(startValueY + i * Math.Pow(zoomY, zoomDir.X))).ToString();
+                SizeF size = g.MeasureString(s, fontSignAxis);
+
+                if (size.Width < axisItemWidth && Math.Abs(startValueY + i * Math.Pow(zoomY, zoomDir.X)) > 1e-8)
+                {
+                    double x = center.X - size.Width - axisSignIndent;
+                    if (x < axisSignIndent) x = axisSignIndent;
+                    if (center.X >= pictureBox1.Width)
+                        x = pictureBox1.Width - size.Width - axisSignIndent;
+
+                    g.FillRectangle(brushSignAxisBg, (float)x, (float)(i * axisItemWidth - dinity - size.Height / 2), size.Width, size.Height);
+                    g.DrawString(s, fontSignAxis, brushSignAxis, (float)x, (float)(i * axisItemWidth - dinity - size.Height / 2));
+                }
+            }
             #endregion
 
             ///////////////////////////////////////////
@@ -407,10 +423,10 @@ namespace Diploma2
                 PointD p = Local2Global(i, (float)data[i]);
                 if (IsGlobalOnScreen(p))
                 {
-                    //if (!first)
-                    //    g.DrawLine(Pens.Blue, (PointF)pLast, (PointF)p);
-                    //pLast = new PointD(p.X, p.Y);
-                    //first = false;
+                    if (!first)
+                        g.DrawLine(Pens.Blue, (PointF)pLast, (PointF)p);
+                    pLast = new PointD(p.X, p.Y);
+                    first = false;
                     g.FillEllipse(Brushes.Red, (float)(p.X - 2), (float)(p.Y - 2), 4, 4);
                 }
             }
@@ -439,7 +455,7 @@ namespace Diploma2
 
         private PointD Local2Global(double localX, double localY)
         {
-            return new PointD((float)(center.X + localX * axisItemWidth / zoomX), (float)(center.Y - localY * axisItemWidth / zoomY));
+            return new PointD((float)(center.X + localX * axisItemWidth / Math.Pow(zoomX, zoomDir.X)), (float)(center.Y - localY * axisItemWidth / Math.Pow(zoomY, zoomDir.X)));
         }
         private PointD Local2Global(PointD localPoint)
         {
@@ -447,7 +463,7 @@ namespace Diploma2
         }
         private PointD Global2Local(double globalX, double globalY)
         {
-            return new PointD((float)(zoomX * (globalX - center.X) / axisItemWidth), (float)(zoomY * (globalY - center.Y) / axisItemWidth));
+            return new PointD((float)(Math.Pow(zoomX, zoomDir.X) * (globalX - center.X) / axisItemWidth), (float)(Math.Pow(zoomY, zoomDir.X) * (globalY - center.Y) / axisItemWidth));
         }
         private PointD Global2Local(PointD globalPoint)
         {

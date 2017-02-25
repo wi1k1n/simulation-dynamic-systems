@@ -14,8 +14,8 @@ namespace Diploma2
         public struct Pair<T1, T2> { public T1 V1; public T2 V2; }
 
         private int tests = 100, progress = 0, inProgress = 0, nodes = 10000, mlt = 3;
-        private List<SFNetwork> networks = new List<SFNetwork>();
-        private List<Dictionary<int, int>> stats = new List<Dictionary<int, int>>();
+        private Dictionary<int, double> stats = new Dictionary<int, double>();
+        private int nwCounter = 0;
         private object locker = new object();
         private Stopwatch sw = new Stopwatch();
         private Random rnd = new Random();
@@ -33,8 +33,8 @@ namespace Diploma2
             }
         }
         public double Progress { get { return (double)progress / tests; } }
-
-        public Pair<List<SFNetwork>, List<Dictionary<int, int>>> GenerateSFNetworks(int node_count, int multiplier, int quantity, CancellationToken ct, int threads = 4)
+        
+        public Dictionary<int, double> GenerateSFNetworksAverage(int node_count, int multiplier, int quantity, CancellationToken ct, int threads = 4)
         {
             cancel = ct;
 
@@ -43,8 +43,9 @@ namespace Diploma2
             tests = quantity;
             progress = 0;
             inProgress = 0;
-            networks = new List<SFNetwork>();
-            stats = new List<Dictionary<int, int>>();
+            nwCounter = 0;
+            stats = new Dictionary<int, double>(node_count);
+            for (int i = 0; i < node_count; i++) stats.Add(i, 0);
 
             List<Task> tsks = new List<Task>();
             for (int i = 0; i < threads; i++) tsks.Add(new Task(GenerateTestNetwork, ct));
@@ -53,10 +54,7 @@ namespace Diploma2
             foreach (Task tsk in tsks) tsk.Wait();
             sw.Stop();
 
-            var ret = new Pair<List<SFNetwork>, List<Dictionary<int, int>>>();
-            ret.V1 = networks;
-            ret.V2 = stats;
-            return ret;
+            return stats;
         }
         private void GenerateTestNetwork()
         {
@@ -78,31 +76,18 @@ namespace Diploma2
                         stat[edg.To] += edg.Weight;
                     }
                 }
-                lock (networks) lock (stats)
-                    {
-                        networks.Add(nw);
-                        stats.Add(stat);
-                        progress++;
-                        inProgress--;
-                        //Console.WriteLine("{0}/{1}\tTime:\t{2}", progress, tests, sw.Elapsed);
-                    }
+                lock (stats)
+                {
+                    for (int i = 0; i < stats.Count; i++)
+                        stats[i] = (stats[i] * nwCounter + stat[i]) / (nwCounter + 1);
+                    nwCounter++;
+                    progress++;
+                    inProgress--;
+                    //Console.WriteLine("{0}/{1}\tTime:\t{2}", progress, tests, sw.Elapsed);
+                }
                 timeRem = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds / progress * (tests - progress));
             }
             //Console.WriteLine("Finished!");
-        }
-
-        public Dictionary<int, double> GenerateSFNetworksAverage(int node_count, int multiplier, int quantity, CancellationToken ct, int threads = 4)
-        {
-            GenerateSFNetworks(node_count, multiplier, quantity, ct, threads);
-            Dictionary<int, double> ret = new Dictionary<int, double>();
-            for (int i = 0; i < stats[0].Count; i++)
-            {
-                double sum = 0;
-                int n = 0;
-                for (int j = 0; j < stats.Count; j++) sum = ((sum * n) + stats[j][i]) / ++n;
-                ret.Add(i, sum);
-            }
-            return ret;
         }
     }
 }
