@@ -56,7 +56,7 @@ namespace Diploma2
             timer.Tick += (obj, evt) => { string frmt = @"hh\:mm\:ss"; Text = "Progress: " + (int)(sfng.Progress * 10000) / 100.0 + "%   Left: " + sfng.TimeLeft.ToString(frmt) + "   Remaining: " + sfng.TimeRemaining.ToString(frmt); };
             new Task(() =>
             {
-                data = sfng.GenerateSFNetworksAverage(4000, 3, 1000, cancel.Token, 3);
+                data = sfng.GenerateSFNetworksAverage(1500, 3, 100, cancel.Token, 3);
                 timer.Stop();
 
                 System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
@@ -441,6 +441,15 @@ namespace Diploma2
         {
             foreach (ToolStripMenuItem it in отрисовкаToolStripMenuItem.DropDownItems) it.Checked = false;
             скоростьToolStripMenuItem.Checked = true;
+        }
+
+        private void домойToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            center = new PointD(ClientRectangle.Width / 2, ClientRectangle.Height / 2);
+            zoomX = 1;
+            zoomY = 1;
+            axisItemWidth = axisItemMin;
+            pictureBox1.Invalidate();
         }
 
 

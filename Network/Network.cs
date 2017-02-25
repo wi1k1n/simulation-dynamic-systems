@@ -33,13 +33,6 @@ namespace Diploma2
                 Weight = weight;
             }
 
-            public void Serialize(Stream str)
-            {
-                str.Write(BitConverter.GetBytes(From), 0, 4);
-                str.Write(BitConverter.GetBytes(To), 0, 4);
-                str.Write(BitConverter.GetBytes(Weight), 0, 4);
-            }
-
             public override string ToString()
             {
                 return "(" + From + "; " + To + "): " + Weight;
@@ -75,13 +68,6 @@ namespace Diploma2
             public Network(IEnumerable<Edge> edges)
             {
                 Edges = new List<Edge>(edges);
-            }
-
-            public void Serialize(Stream str)
-            {
-                str.Write(BitConverter.GetBytes(nodeCount), 0, 4);
-                foreach (Edge edg in Edges)
-                    edg.Serialize(str);
             }
         }
     }

@@ -68,11 +68,5 @@ namespace Diploma2
                 else Edges.Find(x => { return x.From == edg.From && x.To == edg.To; }).Weight++;
             }
         }
-
-        public new void Serialize(Stream str)
-        {
-            str.Write(BitConverter.GetBytes(Multiplier), 0, 4);
-            base.Serialize(str);
-        }
     }
 }
