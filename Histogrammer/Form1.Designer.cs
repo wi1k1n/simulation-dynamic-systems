@@ -32,10 +32,9 @@
             this.отрисовкаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.качествоToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.скоростьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.домойToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ilGrapher1 = new Diploma2.ilGrapher();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -75,21 +74,6 @@
             this.скоростьToolStripMenuItem.Text = "Скорость";
             this.скоростьToolStripMenuItem.Click += new System.EventHandler(this.скоростьToolStripMenuItem_Click);
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 28);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1078, 539);
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
-            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
-            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
-            this.pictureBox1.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseWheel);
-            // 
             // домойToolStripMenuItem
             // 
             this.домойToolStripMenuItem.Name = "домойToolStripMenuItem";
@@ -97,13 +81,24 @@
             this.домойToolStripMenuItem.Text = "Домой";
             this.домойToolStripMenuItem.Click += new System.EventHandler(this.домойToolStripMenuItem_Click);
             // 
+            // ilGrapher1
+            // 
+            this.ilGrapher1.BackColor = System.Drawing.Color.White;
+            this.ilGrapher1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ilGrapher1.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ilGrapher1.Location = new System.Drawing.Point(0, 28);
+            this.ilGrapher1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.ilGrapher1.Name = "ilGrapher1";
+            this.ilGrapher1.Size = new System.Drawing.Size(1078, 539);
+            this.ilGrapher1.TabIndex = 2;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 28F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1078, 567);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.ilGrapher1);
             this.Controls.Add(this.menuStrip1);
             this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
@@ -112,10 +107,8 @@
             this.Name = "Form1";
             this.Text = "Histogram Visualizer";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.Resize += new System.EventHandler(this.Form1_Resize);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -124,11 +117,11 @@
         #endregion
 
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.ToolStripMenuItem отрисовкаToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem качествоToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem скоростьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem домойToolStripMenuItem;
+        private ilGrapher ilGrapher1;
     }
 }
 
