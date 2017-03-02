@@ -267,6 +267,17 @@ namespace Diploma2
             g = null;
         }
 
+        // isLocalOnScreen
+        public bool IsOnScreen(double x, double y)
+        {
+            Point p = Local2Global(x, y);
+            return p.X >= 0 && p.X <= Width && p.Y >= 0 && p.Y <= Height;
+        }
+        public bool IsOnScreen(Point p)
+        {
+            return IsOnScreen(p.X, p.Y);
+        }
+
         private bool IsGlobalOnScreen(double x, double y, double indentX = 0, double indentY = 0)
         {
             return x >= -indentX && x <= Width + indentX && y >= -indentY && y <= Height + indentY;
@@ -337,8 +348,10 @@ namespace Diploma2
             Point p2 = Local2Global(rect.X + rect.Width, rect.Y + rect.Height);
             if (!IsGlobalOnScreen(p1) && !IsGlobalOnScreen(p2) && !IsGlobalOnScreen(p1.X, p2.Y) && !IsGlobalOnScreen(p1.Y, p2.X)) return;
             int w = p2.X - p1.X;
+            if (Math.Abs(w) < 1) return;
             int x = w > 0 ? p1.X : p2.X;
             int h = p1.Y - p2.Y;
+            if (Math.Abs(h) < 1) return;
             int y = h > 0 ? p2.Y : p1.Y;
             g.DrawRectangle(pen, new Rectangle(x, y, Math.Abs(w), Math.Abs(h)));
         }
@@ -394,8 +407,10 @@ namespace Diploma2
             Point p2 = Local2Global(rect.X + rect.Width, rect.Y + rect.Height);
             if (!IsGlobalOnScreen(p1) && !IsGlobalOnScreen(p2) && !IsGlobalOnScreen(p1.X, p2.Y) && !IsGlobalOnScreen(p1.Y, p2.X)) return;
             float w = p2.X - p1.X;
+            if (Math.Abs(w) < 1) return;
             float x = w > 0 ? p1.X : p2.X;
             float h = p1.Y - p2.Y;
+            if (Math.Abs(h) < 1) return;
             float y = h > 0 ? p2.Y : p1.Y;
             g.FillRectangle(b, new RectangleF(x, y, Math.Abs(w), Math.Abs(h)));
         }

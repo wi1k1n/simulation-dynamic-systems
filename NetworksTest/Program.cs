@@ -18,7 +18,13 @@ namespace Diploma2
         static double e(double x) { return Math.Exp(x); }
         static void Main(string[] args)
         {
-            SFNetworkOscillator nw = new SFNetworkOscillator(175, 3, 0.45, 1, 10, -Math.PI, Math.PI, 1, -10, 0.01, 123);
+            Stopwatch sww = new Stopwatch();
+            sww.Start();
+            SFNetwork sfnw = new SFNetwork(10000, 3);
+            sww.Stop();
+            Console.WriteLine(sww.Elapsed);
+            return;
+            SFNetworkOscillator nw = new SFNetworkOscillator(175, 3, 0.45, 1, 10, -Math.PI, Math.PI, -10, 1, 0.01, 123);
             nw.Serialize("network-175-3-045-1-10-1--10-001");
             SortedDictionary<double, double[]> l = new SortedDictionary<double, double[]>();
             Stopwatch sw = new Stopwatch();

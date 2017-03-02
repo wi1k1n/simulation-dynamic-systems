@@ -38,8 +38,10 @@ namespace Diploma2
             using (io.FileStream fs = io.File.OpenRead(@"phases"))
                 dataRaw = (SortedDictionary<double, double[]>)bf.Deserialize(fs);
 
-            SFNetworkOscillator nw = SFNetworkOscillator.Deserialize(@"D:/MISiS/НИР/8с Анализ безмасштабной сети/Project/Diploma2/NetworksTest/bin/Debug/network-175-3-045-1-10-1--10-001");
-            
+            Dictionary<int, int> nodes = null;
+            using (io.FileStream fs = io.File.OpenRead(@"network-175-3-045-1-10-1--10-001.nodes"))
+                nodes = (Dictionary<int, int>)bf.Deserialize(fs);
+
             foreach (var d in dataRaw)
             {
                 double sum = 0;
@@ -51,6 +53,7 @@ namespace Diploma2
                     sum2 += Math.Cos(d.Value[j]);
                     sum2i += Math.Sin(d.Value[j]);
                 }
+                //sum /= 6.0;
                 sum2 = (50 * Math.Sqrt(Math.Pow(sum2 / d.Value.Length, 2) + Math.Pow(sum2i / d.Value.Length, 2)));
                 dataSumSignal.Add(d.Key, (float)sum);
                 dataCoherency.Add(d.Key, (float)sum2);
@@ -76,7 +79,7 @@ namespace Diploma2
                 double w = 2 * Math.PI / res.Count;
                 for (int i = 0; i < data.Length; i++)
                 {
-                    if (nw.Nodes[i] < M) continue;
+                    if (nodes[i] < M) continue;
                     double v = data[i] < 0 ? data[i] + 2 * Math.PI : data[i];
                     res[(int)(v * res.Count / (2 * Math.PI))]++;
                 }
@@ -89,7 +92,7 @@ namespace Diploma2
                 List<double> res = new List<double>();
                 for (int i = 0; i < data.Length; i++)
                 {
-                    if (nw.Nodes[i] < M) continue;
+                    if (nodes[i] < M) continue;
                     res.Add(data[i]);
                 }
                 hubsPhases.Add(res);
@@ -100,27 +103,43 @@ namespace Diploma2
         {
             float y = -200;
             float x = 0;
-            //foreach (var d in dataSumSignal)
-            //    ilGrapher1.FillRectangle(Brushes.Red, (float)d.Key, y, 0.8f, d.Value);
+            foreach (var d in dataSumSignal)
+                ilGrapher1.FillRectangle(Brushes.Red, (float)d.Key, y, 0.8f, d.Value);
             y = 0;
-            //foreach (var d in dataCoherency)
-            //    ilGrapher1.FillRectangle(Brushes.Blue, (float)d.Key, y, 0.8f, d.Value);
+            foreach (var d in dataCoherency)
+                ilGrapher1.FillRectangle(Brushes.Blue, (float)d.Key, y, 0.8f, d.Value);
+
+            x = 0;
             y = 100;
             for (int j = 0; j < hists.Count; j++)
-                for (int i = 0; i < hists[j].Count; i++)
-                    ilGrapher1.FillRectangle(Brushes.Purple, i, y + j * 20, 1, (float)hists[j][i]);
+                for (int i = 0; i < hists[j].Count; i++) {
+                    float xt = x + i,
+                        yt = y + j * 20;
+                    if (ilGrapher1.IsOnScreen(xt, yt))
+                        ilGrapher1.FillRectangle(Brushes.Purple, xt, yt, 1, (float)hists[j][i]);
+                }
 
             y = 100;
             x = hists[0].Count;
             for (int j = 0; j < histsHubs.Count; j++)
                 for (int i = 0; i < histsHubs[j].Count; i++)
-                    ilGrapher1.FillRectangle(Brushes.Orange, x + i, y + j * 20, 1, (float)histsHubs[j][i]);
+                {
+                    float xt = x + i,
+                        yt = y + j * 20;
+                    if (ilGrapher1.IsOnScreen(xt, yt))
+                        ilGrapher1.FillRectangle(Brushes.Orange, xt, yt, 1, (float)histsHubs[j][i]);
+                }
 
             y = 100;
             x += histsHubs[0].Count + 10;
             for (int j = 0; j < hubsPhases.Count; j++)
                 for (int i = 0; i < hubsPhases[j].Count; i++)
-                    ilGrapher1.FillRectangle(Brushes.DarkGreen, x + i, y + j * 20, 1, (float)hubsPhases[j][i]);
+                {
+                    float xt = x + i,
+                        yt = y + j * 20;
+                    if (ilGrapher1.IsOnScreen(xt, yt))
+                        ilGrapher1.FillRectangle(Brushes.DarkGreen, xt, yt, 1, (float)hubsPhases[j][i]);
+                }
         }
 
         private void качествоToolStripMenuItem_Click(object sender, EventArgs e)
