@@ -12,8 +12,8 @@ namespace Diploma2
         [Serializable]
         public class Edge
         {
-            public int From { get; set; }
-            public int To { get; set; }
+            public int From { get; protected set; }
+            public int To { get; protected set; }
             public int Weight { get; set; }
 
             public Edge() { }
@@ -42,32 +42,33 @@ namespace Diploma2
         [Serializable]
         public abstract class Network
         {
-            // TODO: Change nodeCount when Edges is changed
-            private int nodeCount = 0;
-            public int NodeCount
-            {
-                get
-                {
-                    List<int> nodes = new List<int>();
-                    foreach (Edge edg in Edges)
-                    {
-                        if (!nodes.Contains(edg.From))
-                            nodes.Add(edg.From);
-                        if (!nodes.Contains(edg.To))
-                            nodes.Add(edg.To);
-                    }
-                    return nodes.Count;
-                }
-            }
-            public List<Edge> Edges { get; set; }
+            public List<Edge> Edges { get; protected set; }
+            public Dictionary<int, int> Nodes { get; protected set; }
 
             public Network()
             {
                 Edges = new List<Edge>();
+                Nodes = new Dictionary<int, int>();
             }
             public Network(IEnumerable<Edge> edges)
             {
                 Edges = new List<Edge>(edges);
+                NodesRecalculate();
+            }
+
+            protected void NodesRecalculate()
+            {
+                Nodes = new Dictionary<int, int>();
+                foreach (Edge edg in Edges)
+                {
+                    if (!Nodes.ContainsKey(edg.From))
+                        Nodes.Add(edg.From, 0);
+                    Nodes[edg.From]++;
+                    if (edg.From == edg.To) continue;
+                    if (!Nodes.ContainsKey(edg.To))
+                        Nodes.Add(edg.To, 0);
+                    Nodes[edg.To]++;
+                }
             }
         }
     }

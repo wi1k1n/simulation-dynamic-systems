@@ -34,6 +34,15 @@ namespace Diploma2
         }
         public double Progress { get { return (double)progress / tests; } }
         
+        /// <summary>
+        /// Generates a number of SFNetworks to store an average distribution of quantity of SFNetwork-nodes by their degree
+        /// </summary>
+        /// <param name="node_count">The quantity of nodes for each SFNetwork</param>
+        /// <param name="multiplier">The multiplier for edges: qtyEdges = mlt * qtyNodes</param>
+        /// <param name="quantity">The number of networks that need to be generated</param>
+        /// <param name="ct">CancelToken - the token to stop calculating without loosing already calculated data</param>
+        /// <param name="threads">The number of threads that will be used to increase the effectiveness of pc</param>
+        /// <returns>List of pairs. Key - the degree of node, Value - quantity of nodes with this degree</returns>
         public Dictionary<int, double> GenerateSFNetworksAverage(int node_count, int multiplier, int quantity, CancellationToken ct, int threads = 4)
         {
             cancel = ct;

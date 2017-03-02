@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using g2d = System.Drawing.Drawing2D;
 
 namespace Diploma2
 {
@@ -18,14 +19,13 @@ namespace Diploma2
         double zx = 1; // This is needed to reduce calculations on Math.Pow(zoomX, zoonDir.X)
         double zy = 1;
         Point zoomDir = new Point(1, 1);
-        double zoomRestriction = 1e8;
         float zoomStep = 1.15f; // Rate of changing itemWidth
         Point lineNumber = new Point(5, 5);
         float axisItemMin = 128, axisItemMax = 0;
         float axisItemWidth = 128; // Grid item size in pixels
 
         SizeD axisArrowSize = new SizeD(8, 3);
-        float axisSignIndent = 14;
+        float axisSignIndent = 5;
 
         PointD mouseClick = new PointD();
         bool isMoving = false;
@@ -33,11 +33,12 @@ namespace Diploma2
         Pen penAxisMain = new Pen(Color.FromArgb(120, 120, 120), 1f);
         Pen penAxisAux1 = new Pen(Color.FromArgb(200, 200, 200), 1f);
         Pen penAxisAux2 = new Pen(Color.FromArgb(240, 240, 240), 1f);
-        Font fontSignAxis = new Font("Segoe UI", 8f);
-        Brush brushSignAxis = Brushes.Gray;
+        Font fontSignAxis = new Font("Segoe UI", 10f);
+        Brush brushSignAxis = Brushes.Black;
         Brush brushSignAxisBg = new SolidBrush(Color.Gray);
 
         Graphics g = null;
+        g2d.CompositingQuality gQuality = g2d.CompositingQuality.HighSpeed;
 
         public ilGrapher()
         {
@@ -96,7 +97,7 @@ namespace Diploma2
                 center.Y = e.Y + (center.Y - e.Y) * zoomStep;
             }
             // Zoom Out
-            else
+            else if (e.Delta < 0)
             {
                 axisItemWidth = axisItemWidth / zoomStep;
                 center.X = e.X + (center.X - e.X) / zoomStep;
@@ -145,10 +146,7 @@ namespace Diploma2
             PointF axisElementWidth = new PointF(axisItemWidth / lineNumber.X, axisItemWidth / lineNumber.Y);
 
             g = e.Graphics;
-            //if (качествоToolStripMenuItem.Checked)
-            //    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-            //if (скоростьToolStripMenuItem.Checked)
-            //    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+            g.CompositingQuality = gQuality;
 
             BeforePaintAxes?.Invoke(this, e);
 
@@ -202,6 +200,20 @@ namespace Diploma2
                     new PointF((float)(center.X + axisArrowSize.Height), (float)axisArrowSize.Width)
                 });
             }
+            #endregion
+
+            ///////////////////////////////////////////
+            //////////// End Drawing axes /////////////
+            ///////////////////////////////////////////
+
+            AfterPaintAxes?.Invoke(this, e);
+
+            ///////////////////////////////////////////
+            /////////// Drawing signatures ////////////
+            ///////////////////////////////////////////
+
+            #region Drawing signatures
+
 
             // Signatures for X-axis
             for (int i = -1; i <= imaxx; i++)
@@ -221,7 +233,7 @@ namespace Diploma2
                     if (center.Y + axisSignIndent >= Height - size.Height - axisSignIndent)
                         y = Height - size.Height - axisSignIndent;
 
-                    g.FillRectangle(brushSignAxisBg, (float)(i * axisItemWidth - dinitx - size.Width / 2), (float)y, size.Width, size.Height);
+                    //g.FillRectangle(brushSignAxisBg, (float)(i * axisItemWidth - dinitx - size.Width / 2), (float)y, size.Width, size.Height);
                     g.DrawString(s, fontSignAxis, brushSignAxis, (float)(i * axisItemWidth - dinitx - size.Width / 2), (float)y);
                 }
             }
@@ -242,20 +254,19 @@ namespace Diploma2
                     if (center.X >= Width)
                         x = Width - size.Width - axisSignIndent;
 
-                    g.FillRectangle(brushSignAxisBg, (float)x, (float)(i * axisItemWidth - dinity - size.Height / 2), size.Width, size.Height);
+                    //g.FillRectangle(brushSignAxisBg, (float)x, (float)(i * axisItemWidth - dinity - size.Height / 2), size.Width, size.Height);
                     g.DrawString(s, fontSignAxis, brushSignAxis, (float)x, (float)(i * axisItemWidth - dinity - size.Height / 2));
                 }
             }
             #endregion
 
             ///////////////////////////////////////////
-            //////////// End Drawing axes /////////////
+            ///////// End Drawing signatures //////////
             ///////////////////////////////////////////
-
-            AfterPaintAxes?.Invoke(this, e);
 
             g = null;
         }
+
         private bool IsGlobalOnScreen(double x, double y, double indentX = 0, double indentY = 0)
         {
             return x >= -indentX && x <= Width + indentX && y >= -indentY && y <= Height + indentY;
@@ -275,7 +286,7 @@ namespace Diploma2
         }
         private PointD Global2Local(double globalX, double globalY)
         {
-            return new PointD((float)(zx * (globalX - center.X) / axisItemWidth), (float)(zy * (globalY - center.Y) / axisItemWidth));
+            return new PointD((float)(zx * (globalX - center.X) / axisItemWidth), (float)(zy * (center.Y - globalY) / axisItemWidth));
         }
         private PointD Global2Local(PointD globalPoint)
         {
@@ -287,7 +298,10 @@ namespace Diploma2
         public event PaintEventHandler BeforePaintAxes;
         public event PaintEventHandler AfterPaintAxes;
 
-        // Navigation
+        ////  Properties
+        public g2d.CompositingQuality Quality { get { return gQuality; } set { gQuality = value; } }
+
+        //// Methods
         public void Home()
         {
             center = new PointD(ClientRectangle.Width / 2, ClientRectangle.Height / 2);
@@ -319,18 +333,27 @@ namespace Diploma2
         public void DrawRectangle(Pen pen, RectangleF rect)
         {
             if (g == null) return;
-            Point p1 = Local2Global(rect.Location);
-            Point p2 = Local2Global(rect.Right, rect.Bottom);
-            Rectangle r = new Rectangle(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y);
-            if (!IsGlobalOnScreen(rect.Location) && !IsGlobalOnScreen(rect.Right, rect.Top) && !IsGlobalOnScreen(rect.Left, rect.Bottom) && !IsGlobalOnScreen(rect.Right, rect.Bottom)) return;
-            g.DrawRectangle(pen, r);
+            Point p1 = Local2Global(rect.X, rect.Y);
+            Point p2 = Local2Global(rect.X + rect.Width, rect.Y + rect.Height);
+            if (!IsGlobalOnScreen(p1) && !IsGlobalOnScreen(p2) && !IsGlobalOnScreen(p1.X, p2.Y) && !IsGlobalOnScreen(p1.Y, p2.X)) return;
+            int w = p2.X - p1.X;
+            int x = w > 0 ? p1.X : p2.X;
+            int h = p1.Y - p2.Y;
+            int y = h > 0 ? p2.Y : p1.Y;
+            g.DrawRectangle(pen, new Rectangle(x, y, Math.Abs(w), Math.Abs(h)));
+        }
+        public void DrawCircle(Pen pen, float x, float y, float r)
+        {
+            DrawCircle(pen, new PointF(x, y), r);
         }
         public void DrawCircle(Pen pen, PointF p, float r)
         {
             if (g == null) return;
             p = Local2Global(p);
-            if (!IsGlobalOnScreen(p, r, r)) return;
-            g.DrawEllipse(pen, p.X - r, p.Y - r, r * 2, r * 2);
+            float rx = r * axisItemWidth / zoomX,
+                ry = r * axisItemWidth / zoomY;
+            if (!IsGlobalOnScreen(p, rx, ry)) return;
+            g.DrawEllipse(pen, p.X - rx, p.Y - ry, rx * 2, ry * 2);
         }
         public void DrawString(string s, Font font, Brush b, float x, float y)
         {
@@ -340,9 +363,10 @@ namespace Diploma2
         {
             if (g == null) return;
             p = Local2Global(p);
-            SizeF size = g.MeasureString(s, font);
+            Font fontNew = new Font(font.FontFamily, (float)(font.Size * axisItemWidth / zoomX));
+            SizeF size = g.MeasureString(s, fontNew);
             if (!IsGlobalOnScreen(p) && !IsGlobalOnScreen(new PointF(p.X + size.Width, p.Y)) && !IsGlobalOnScreen(new PointF(p.X, p.Y + size.Height)) && !IsGlobalOnScreen(new PointF(p.X + size.Width, p.Y + size.Height))) return;
-            g.DrawString(s, font, b, p);
+            g.DrawString(s, fontNew, b, p);
         }
 
         // Filling
@@ -354,8 +378,10 @@ namespace Diploma2
         {
             if (g == null) return;
             p = Local2Global(p);
-            if (!IsGlobalOnScreen(p, r, r)) return;
-            g.FillEllipse(b, p.X - r, p.Y - r, r * 2, r * 2);
+            float rx = r * axisItemWidth / zoomX,
+                ry = r * axisItemWidth / zoomY;
+            if (!IsGlobalOnScreen(p, rx, ry)) return;
+            g.FillEllipse(b, p.X - rx, p.Y - ry, rx * 2, ry * 2);
         }
         public void FillRectangle(Brush b, float x, float y, float width, float height)
         {
@@ -364,11 +390,76 @@ namespace Diploma2
         public void FillRectangle(Brush b, RectangleF rect)
         {
             if (g == null) return;
-            Point p1 = Local2Global(rect.Location);
-            Point p2 = Local2Global(rect.Right, rect.Bottom);
-            Rectangle r = new Rectangle(p1.X, p1.Y, p2.X - p1.X, p2.Y - p1.Y);
-            if (!IsGlobalOnScreen(rect.Location) && !IsGlobalOnScreen(rect.Right, rect.Top) && !IsGlobalOnScreen(rect.Left, rect.Bottom) && !IsGlobalOnScreen(rect.Right, rect.Bottom)) return;
-            g.FillRectangle(b, r);
+            Point p1 = Local2Global(rect.X, rect.Y);
+            Point p2 = Local2Global(rect.X + rect.Width, rect.Y + rect.Height);
+            if (!IsGlobalOnScreen(p1) && !IsGlobalOnScreen(p2) && !IsGlobalOnScreen(p1.X, p2.Y) && !IsGlobalOnScreen(p1.Y, p2.X)) return;
+            float w = p2.X - p1.X;
+            float x = w > 0 ? p1.X : p2.X;
+            float h = p1.Y - p2.Y;
+            float y = h > 0 ? p2.Y : p1.Y;
+            g.FillRectangle(b, new RectangleF(x, y, Math.Abs(w), Math.Abs(h)));
+        }
+
+        // Drawing Point
+        public void DrawRectanglePoint(Pen pen, float x, float y, float width, float height)
+        {
+            DrawRectanglePoint(pen, new RectangleF(x, y, width, height));
+        }
+        public void DrawRectanglePoint(Pen pen, RectangleF rect)
+        {
+            if (g == null) return;
+            Point p = Local2Global(rect.Location);
+            SizeF sizeHalf = new SizeF(rect.Width / 2, rect.Height / 2);
+            if (!IsGlobalOnScreen(p.X - sizeHalf.Width, p.Y - sizeHalf.Height / 2) && !IsGlobalOnScreen(p.X - sizeHalf.Width, p.Y + sizeHalf.Height / 2) && !IsGlobalOnScreen(p.X + sizeHalf.Width, p.Y + sizeHalf.Height / 2) && !IsGlobalOnScreen(p.X + sizeHalf.Width, p.Y - sizeHalf.Height / 2)) return;
+            g.DrawRectangle(pen, p.X - sizeHalf.Width, p.Y - sizeHalf.Height, rect.Width, rect.Height);
+        }
+        public void DrawCirclePoint(Pen pen, float x, float y, float r)
+        {
+            DrawCirclePoint(pen, new PointF(x, y), r);
+        }
+        public void DrawCirclePoint(Pen pen, PointF p, float r)
+        {
+            if (g == null) return;
+            p = Local2Global(p);
+            if (!IsGlobalOnScreen(p, r, r)) return;
+            g.DrawEllipse(pen, p.X - r, p.Y - r, r * 2, r * 2);
+        }
+        public void DrawStringPoint(string s, Font font, Brush b, float x, float y)
+        {
+            DrawStringPoint(s, font, b, new PointF(x, y));
+        }
+        public void DrawStringPoint(string s, Font font, Brush b, PointF p)
+        {
+            if (g == null) return;
+            p = Local2Global(p);
+            SizeF size = g.MeasureString(s, font);
+            if (!IsGlobalOnScreen(p) && !IsGlobalOnScreen(new PointF(p.X + size.Width, p.Y)) && !IsGlobalOnScreen(new PointF(p.X, p.Y + size.Height)) && !IsGlobalOnScreen(new PointF(p.X + size.Width, p.Y + size.Height))) return;
+            g.DrawString(s, font, b, p);
+        }
+
+        // Filling Point
+        public void FillCirclePoint(Brush b, float r, float x, float y)
+        {
+            FillCirclePoint(b, r, new PointF(x, y));
+        }
+        public void FillCirclePoint(Brush b, float r, PointF p)
+        {
+            if (g == null) return;
+            p = Local2Global(p);
+            if (!IsGlobalOnScreen(p, r, r)) return;
+            g.FillEllipse(b, p.X - r, p.Y - r, r * 2, r * 2);
+        }
+        public void FillRectanglePoint(Brush b, float x, float y, float width, float height)
+        {
+            FillRectanglePoint(b, new RectangleF(x, y, width, height));
+        }
+        public void FillRectanglePoint(Brush b, RectangleF rect)
+        {
+            if (g == null) return;
+            Point p = Local2Global(rect.Location);
+            SizeF sizeHalf = new SizeF(rect.Width / 2, rect.Height / 2);
+            if (!IsGlobalOnScreen(p.X - sizeHalf.Width, p.Y - sizeHalf.Height / 2) && !IsGlobalOnScreen(p.X - sizeHalf.Width, p.Y + sizeHalf.Height / 2) && !IsGlobalOnScreen(p.X + sizeHalf.Width, p.Y + sizeHalf.Height / 2) && !IsGlobalOnScreen(p.X + sizeHalf.Width, p.Y - sizeHalf.Height / 2)) return;
+            g.FillRectangle(b, p.X - sizeHalf.Width, p.Y - sizeHalf.Height, rect.Width, rect.Height);
         }
     }
 }

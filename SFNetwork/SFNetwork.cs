@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Diploma2.Networks;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Diploma2
 {
@@ -24,7 +25,7 @@ namespace Diploma2
             Multiplier = edge_multiplier;
             Generate(node_count, edge_multiplier, new Random(seed));
         }
-        public void Generate(int node_count, int edge_multiplier, Random rnd)
+        private void Generate(int node_count, int edge_multiplier, Random rnd)
         {
             Edges = new List<Edge>();
 
@@ -59,7 +60,7 @@ namespace Diploma2
                 }
             }
 
-            // Corresponding lcd-edges to net-work-edges
+            // Corresponding lcd-edges to network-edges
             for (int i = 0; i < l; i++)
             {
                 if (lcd[i] == -1) continue;
@@ -67,6 +68,33 @@ namespace Diploma2
                 if (!Edges.Any(x => { return x.From == edg.From && x.To == edg.To; })) Edges.Add(edg);
                 else Edges.Find(x => { return x.From == edg.From && x.To == edg.To; }).Weight++;
             }
+            NodesRecalculate();
+        }
+
+        public int Serialize(string path)
+        {
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                using (FileStream fs = File.OpenWrite(path))
+                    bf.Serialize(fs, this);
+            }
+            catch
+            {
+                return 1;
+            }
+            return 0;
+        }
+        public static SFNetwork Deserialize(string path)
+        {
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                using (FileStream fs = File.OpenRead(path))
+                    return (SFNetwork)bf.Deserialize(fs);
+            }
+            catch { }
+            return null;
         }
     }
 }
