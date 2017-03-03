@@ -43,5 +43,8 @@
     <Text Include="RK4S_Test_Functionality.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="SFnetworkOscillatorDynamicCalculation.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

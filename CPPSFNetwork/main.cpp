@@ -8,9 +8,10 @@
 #include <ctime>
 #include <functional>
 #include <random>
+#include <fstream>
 
 
-#define PI				3.1415926535897932384626433832795
+#define PI	3.1415926535897932384626433832795
 
 
 using namespace std;
@@ -24,24 +25,25 @@ double measureRuntime(const function<void()> f) {
 	return (clock() - start) / (double)CLOCKS_PER_SEC;
 }
 
+void foo() {
+	SFNetworkOscillator nw(300, 3, .65, 1, 10, -PI, PI, 0, 1, 0.01, 625);
+	nw.Binarize("network.bin");
+	return;
+	vector<int> vec(3, 2);
+	vec[0] = -3;
+	vec[2] = 51;
+	std::ofstream ofile("foo.bin", ios::binary);
+	for (int i : vec)
+		ofile.write((char*)&i, sizeof(i));
+
+	return;
+}
+
+double start = clock();
 int main(int argc, char* argv) {
-	freopen("ouput.txt", "w", stdout);
-	double start = clock();
 	srand(start);
-	double runtime = measureRuntime([start]()->void {
-		ilRand rnd(170303);
-		SFNetwork nww(100, 3);
-		for (int i = 0; i < nww.edges.size(); i++)
-			cout << nww.edges[i].from << "\t" << nww.edges[i].to << "\t" << nww.edges[i].weight << "\n";
-		return;
-		SFNetworkOscillator nw(100, 3, .65, 1, 10, -PI, PI, 0, .1, .001, 170302);
-		for (int i = 0; i < 100; i++) {
-			double local_start = clock();
-			nw.SimulateDynamicStep();
-			cout << "Time: " << nw.time << "\t" << (clock() - local_start)/1000.0 << "\t" << (clock() - start)/1000.0 << endl;
-		}
-	});
-	cout << endl << "Runtime: " << runtime;
+	double runtime = measureRuntime(foo);
+	cout << endl << "Runtime: " << runtime << endl;
 	system("pause");
 	return 0;
 }

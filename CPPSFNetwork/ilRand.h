@@ -6,6 +6,7 @@ class ilRand
 {
 public:
 	int seed;
+	ulonglong x = 0;
 
 	ilRand();
 	ilRand(int seed);
@@ -22,7 +23,6 @@ public:
 private:
 	const ulonglong m = 1442695040888963407;
 	const ulonglong a = 6364136223846793005;
-	ulonglong x = 0;
-	int next();
+	ulonglong next();
 };
 

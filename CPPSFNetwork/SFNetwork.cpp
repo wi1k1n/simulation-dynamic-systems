@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <fstream>
 
 
 #define PI2				6.283185307179586476925286766559
@@ -18,6 +19,11 @@ Edge::Edge(int f, int t, int w) {
 }
 Edge::~Edge()
 {
+}
+void Edge::Binarize(std::ofstream &str) {
+	str.write((char*)&from, sizeof(int));
+	str.write((char*)&to, sizeof(int));
+	str.write((char*)&weight, sizeof(int));
 }
 
 
@@ -97,6 +103,17 @@ SFNetworkOscillatorState::SFNetworkOscillatorState(double t, std::vector<double>
 }
 SFNetworkOscillatorState::~SFNetworkOscillatorState() {};
 
+void SFNetworkOscillatorState::Binarize(std::ofstream &str) {
+	str.write((char*)&time, sizeof(double));
+
+	int phase_count = phases.size();
+	str.write((char*)&phase_count, sizeof(int));
+	for (double ph : phases)
+		str.write((char*)&ph, sizeof(double));
+}
+
+
+
 void SFNetworkOscillator::constructor(double str, double f_min, double f_max, double p_min, double p_max, double t_init, double t_step, double s_step) {
 	strength = str;
 	freq_init_min = f_min;
@@ -112,8 +129,8 @@ void SFNetworkOscillator::constructor(double str, double f_min, double f_max, do
 	phases = std::vector<double>(node_count);
 	for (int i = 0; i < node_count; i++)
 	{
-		freqs[i] = ilRandom.NextDouble(f_max, f_min);
-		phases[i] = ilRandom.NextDouble(p_max, p_min);
+		freqs[i] = ilRandom.Next((int)f_min, (int)f_max);
+		phases[i] = ilRandom.NextDouble(p_min, p_max);
 	}
 	states = std::vector<SFNetworkOscillatorState>{ SFNetworkOscillatorState(time, phases) };
 	funcs = std::vector<RK4SFunc>(node_count);
@@ -155,4 +172,42 @@ void SFNetworkOscillator::SimulateDynamicStep() {
 	phases = result.values;
 	phasesNormalize();
 	states.push_back(SFNetworkOscillatorState(time, phases));
+}
+
+void SFNetworkOscillator::Binarize(char* path) {
+	std::ofstream ofile(path, std::ios::binary);
+	//ofile.write((char*)1, sizeof(float));
+	ofile.write((char*)&node_count, sizeof(int));
+	ofile.write((char*)&multiplier, sizeof(int));
+	ofile.write((char*)&seed, sizeof(int));
+	ofile.write((char*)&ilRandom.x, sizeof(unsigned long long));
+	int edge_count = edges.size();
+	ofile.write((char*)&edge_count, sizeof(int));
+	for (Edge edg : edges)
+		edg.Binarize(ofile);
+
+	ofile.write((char*)&strength, sizeof(double));
+	ofile.write((char*)&freq_init_min, sizeof(double));
+	ofile.write((char*)&freq_init_max, sizeof(double));
+	ofile.write((char*)&phase_init_min, sizeof(double));
+	ofile.write((char*)&phase_init_max, sizeof(double));
+	ofile.write((char*)&time_init, sizeof(double));
+	ofile.write((char*)&time_step, sizeof(double));
+	ofile.write((char*)&solve_step, sizeof(double));
+	ofile.write((char*)&time, sizeof(double));
+
+	int phase_count = phases.size();
+	ofile.write((char*)&phase_count, sizeof(int));
+	for (double ph : phases)
+		ofile.write((char*)&ph, sizeof(double));
+
+	int freq_count = freqs.size();
+	ofile.write((char*)&freq_count, sizeof(int));
+	for (double fr : freqs)
+		ofile.write((char*)&fr, sizeof(double));
+
+	int state_count = freqs.size();
+	ofile.write((char*)&state_count, sizeof(int));
+	for (SFNetworkOscillatorState st : states)
+		st.Binarize(ofile);
 }

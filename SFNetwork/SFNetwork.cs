@@ -46,7 +46,7 @@ namespace Diploma2
                 // Searching random values from the alphabet for both starting and ending of lcd-edge
                 int r1 = alphabet[ilRandom.Next(0, alphabet.Count)];
                 alphabet.Remove(r1);
-                ilRandom.Next(); // Do not rly need, but w/o it lcd diagrams seems too similar
+                //ilRandom.Next(); // Do not rly need, but w/o it lcd diagrams seems too similar
                 int r2 = alphabet[ilRandom.Next(0, alphabet.Count)];
                 alphabet.Remove(r2);
                 lcd[Math.Max(r1, r2)] = Math.Min(r1, r2);

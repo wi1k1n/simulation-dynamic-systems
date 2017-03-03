@@ -25,15 +25,20 @@ namespace Diploma2
             Seed = seed;
             x = (ulong)Seed;
         }
-        public void Initialize()
+        public void ChangeSeed()
         {
             Seed = (int)DateTime.Now.ToBinary();
             x = (ulong)Seed;
         }
-        public void Initialize(int seed)
+        public void SetSeed(int seed)
         {
             Seed = seed;
             x = (ulong)Seed;
+        }
+        public void Initialize(int seed, ulong state)
+        {
+            Seed = seed;
+            x = state;
         }
 
         public int Next()
@@ -46,7 +51,7 @@ namespace Diploma2
         }
         public int Next(int min, int max)
         {
-            return next() % (max - min) + min;
+            return (int)(next() % int.MaxValue) % (max - min) + min;
         }
 
         public double NextDouble()
@@ -62,10 +67,10 @@ namespace Diploma2
             return (next() / (double)m) * (max - min) + min;
         }
 
-        private int next()
+        private ulong next()
         {
             x = ((x * a) % m);
-            return (int)(x % int.MaxValue);
+            return x;
         }
     }
 }

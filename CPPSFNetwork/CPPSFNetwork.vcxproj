@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="RK4S_Test_Functionality.txt" />
+    <Text Include="SFnetworkOscillatorDynamicCalculation.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

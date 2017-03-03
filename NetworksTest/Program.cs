@@ -19,16 +19,17 @@ namespace Diploma2
         static double e(double x) { return Math.Exp(x); }
         static void Main(string[] args)
         {
-            SFNetworkGenerator sfnwGen = new SFNetworkGenerator();
-            Dictionary<int, double> data = sfnwGen.GenerateSFNetworksAverage(50, 3, 100, new CancellationToken(), 2);
-            Serialize("network_stat_average_50_3_100", data);
-            return;
-            ilRand rnd = new ilRand(170303);
-            SFNetwork nww = new SFNetwork(100, 3);
-            string s = "";
-            for (int i = 0; i < nww.Edges.Count; i++)
-                s += nww.Edges[i].From + "\t" + nww.Edges[i].To + "\t" + nww.Edges[i].Weight + "\n";
-            File.WriteAllText("network_ilrand_test.txt", s);
+            using (BinaryReader br = new BinaryReader(File.OpenRead(@"D:/MISiS/НИР/8с Анализ безмасштабной сети/Project/Diploma2/CPPSFNetwork/network.bin")))
+            {
+                int nodeCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                int mlt = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                int seed = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                ulong x = (ulong)BitConverter.ToInt64(br.ReadBytes(8), 0);
+                int edgeCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                for (int i = 0; i < edgeCount; i++)
+                    Console.WriteLine(new Edge(BitConverter.ToInt32(br.ReadBytes(4), 0), BitConverter.ToInt32(br.ReadBytes(4), 0), BitConverter.ToInt32(br.ReadBytes(4), 0)));
+            }
+            Console.ReadKey();
         }
         static void Serialize(string path, params object[] obj)
         {

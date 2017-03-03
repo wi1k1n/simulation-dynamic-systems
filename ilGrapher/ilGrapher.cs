@@ -13,7 +13,6 @@ using sb = System.Runtime.Serialization.Formatters.Binary;
 
 namespace Diploma2
 {
-    [Serializable]
     public partial class ilGrapher : UserControl
     {
         PointD center = new PointD();
@@ -216,8 +215,7 @@ namespace Diploma2
             //////////// End Drawing axes /////////////
             ///////////////////////////////////////////
 
-            AfterPaintAxes?.Invoke(this, e);
-
+            // TODO: Add a class incapsuling all 4 types with controlling z-order 
             foreach (var d in captureDraw)
                 d.Draw(this);
             foreach (var d in captureDrawPoint)
@@ -226,6 +224,8 @@ namespace Diploma2
                 d.Fill(this);
             foreach (var d in captureFillPoint)
                 d.FillPoint(this);
+
+            AfterPaintAxes?.Invoke(this, e);
 
             ///////////////////////////////////////////
             /////////// Drawing signatures ////////////
@@ -568,31 +568,29 @@ namespace Diploma2
 
 
 
-
-
     [Serializable]
-    public abstract class ilGraphCaptureDraw
+    abstract class ilGraphCaptureDraw
     {
         public Color Color { get; set; }
         public ilGraphCaptureDraw(Color p) { Color = p; }
         public abstract void Draw(ilGrapher g);
     }
     [Serializable]
-    public abstract class ilGraphCaptureDrawPoint
+    abstract class ilGraphCaptureDrawPoint
     {
         public Color Color { get; set; }
         public ilGraphCaptureDrawPoint(Color p) { Color = p; }
         public abstract void DrawPoint(ilGrapher g);
     }
     [Serializable]
-    public abstract class ilGraphCaptureFill
+    abstract class ilGraphCaptureFill
     {
         public Color Color { get; set; }
         public ilGraphCaptureFill(Color b) { Color = b; }
         public abstract void Fill(ilGrapher g);
     }
     [Serializable]
-    public abstract class ilGraphCaptureFillPoint
+    abstract class ilGraphCaptureFillPoint
     {
         public Color Color { get; set; }
         public ilGraphCaptureFillPoint(Color b) { Color = b; }
@@ -600,7 +598,7 @@ namespace Diploma2
     }
 
     [Serializable]
-    public class ilGraphCaptureDrawLine : ilGraphCaptureDraw
+    class ilGraphCaptureDrawLine : ilGraphCaptureDraw
     {
         public PointF P1 { get; set; }
         public PointF P2 { get; set; }
@@ -615,7 +613,7 @@ namespace Diploma2
         }
     }
     [Serializable]
-    public class ilGraphCaptureDrawString : ilGraphCaptureFill
+    class ilGraphCaptureDrawString : ilGraphCaptureFill
     {
         public string S { get; set; }
         public Font F { get; set; }
@@ -632,7 +630,7 @@ namespace Diploma2
         }
     }
     [Serializable]
-    public class ilGraphCaptureDrawCircle : ilGraphCaptureDraw
+    class ilGraphCaptureDrawCircle : ilGraphCaptureDraw
     {
         public PointF P { get; set; }
         public float R { get; set; }
@@ -647,7 +645,7 @@ namespace Diploma2
         }
     }
     [Serializable]
-    public class ilGraphCaptureDrawRectangle : ilGraphCaptureDraw
+    class ilGraphCaptureDrawRectangle : ilGraphCaptureDraw
     {
         public RectangleF Rect { get; set; }
         public ilGraphCaptureDrawRectangle(Color pen, RectangleF rect) : base(pen)
@@ -659,9 +657,9 @@ namespace Diploma2
             g.DrawRectangle(Color, Rect);
         }
     }
-    
+
     [Serializable]
-    public class ilGraphCaptureDrawStringPoint : ilGraphCaptureFillPoint
+    class ilGraphCaptureDrawStringPoint : ilGraphCaptureFillPoint
     {
         public string S { get; set; }
         public Font F { get; set; }
@@ -678,7 +676,7 @@ namespace Diploma2
         }
     }
     [Serializable]
-    public class ilGraphCaptureDrawCirclePoint : ilGraphCaptureDrawPoint
+    class ilGraphCaptureDrawCirclePoint : ilGraphCaptureDrawPoint
     {
         public PointF P { get; set; }
         public float R { get; set; }
@@ -693,7 +691,7 @@ namespace Diploma2
         }
     }
     [Serializable]
-    public class ilGraphCaptureDrawRectanglePoint : ilGraphCaptureDrawPoint
+    class ilGraphCaptureDrawRectanglePoint : ilGraphCaptureDrawPoint
     {
         public RectangleF Rect { get; set; }
         public ilGraphCaptureDrawRectanglePoint(Color pen, RectangleF rect) : base(pen)
@@ -707,7 +705,7 @@ namespace Diploma2
     }
 
     [Serializable]
-    public class ilGraphCaptureFillCircle : ilGraphCaptureFill
+    class ilGraphCaptureFillCircle : ilGraphCaptureFill
     {
         public PointF P { get; set; }
         public float R { get; set; }
@@ -722,7 +720,7 @@ namespace Diploma2
         }
     }
     [Serializable]
-    public class ilGraphCaptureFillRectangle : ilGraphCaptureFill
+    class ilGraphCaptureFillRectangle : ilGraphCaptureFill
     {
         public RectangleF Rect { get; set; }
         public ilGraphCaptureFillRectangle(Color b, RectangleF rect) : base(b)
@@ -736,7 +734,7 @@ namespace Diploma2
     }
 
     [Serializable]
-    public class ilGraphCaptureFillCirclePoint : ilGraphCaptureFillPoint
+    class ilGraphCaptureFillCirclePoint : ilGraphCaptureFillPoint
     {
         public PointF P { get; set; }
         public float R { get; set; }
@@ -751,7 +749,7 @@ namespace Diploma2
         }
     }
     [Serializable]
-    public class ilGraphCaptureFillRectanglePoint : ilGraphCaptureFillPoint
+    class ilGraphCaptureFillRectanglePoint : ilGraphCaptureFillPoint
     {
         public RectangleF Rect { get; set; }
         public ilGraphCaptureFillRectanglePoint(Color b, RectangleF rect) : base(b)

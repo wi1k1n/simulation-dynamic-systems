@@ -73,7 +73,7 @@ namespace Diploma2
             Phases = new double[Nodes.Count];
             for (int i = 0; i < Nodes.Count; i++)
             {
-                Frequencies[i] = ilRandom.NextDouble(freqMin, freqMax);
+                Frequencies[i] = ilRandom.Next((int)freqMin, (int)freqMax);
                 Phases[i] = ilRandom.NextDouble(phaseMin, phaseMax);
             }
             States = new List<SFNetworkOscillatorState> { new SFNetworkOscillatorState(Time, Phases) };
@@ -141,6 +141,19 @@ namespace Diploma2
         {
             for (int i = 0; i < Phases.Length; i++)
                 Phases[i] = Phases[i] - (int)(Phases[i] / pi2) * pi2;
+        }
+
+
+        public int LoadFromBinary(string path)
+        {
+            try
+            {
+                using (BinaryReader br = new BinaryReader(File.OpenRead(path)))
+                {
+                }
+            }
+            catch (Exception e) { return 1; }
+            return 0;
         }
     }
 }

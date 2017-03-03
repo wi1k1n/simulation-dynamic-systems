@@ -1,0 +1,15 @@
+﻿
+            SFNetworkOscillator nw = new SFNetworkOscillator(5, 3, .65, 1, 10, -Math.PI, Math.PI, 0, .1, .001, 170302);
+            Stopwatch sw = new Stopwatch(),
+                swg = new Stopwatch();
+            swg.Start();
+            for (int i = 0; i < 100; i++)
+            {
+                sw.Restart();
+                nw.SimulateDynamicStep();
+                sw.Stop();
+                //Console.WriteLine("Time: {0}\t{1}\t{2}", nw.Time, sw.ElapsedMilliseconds / 1000.0, swg.ElapsedMilliseconds / 1000.0);
+                foreach (double d in nw.Phases)
+                    Console.Write("{0}\t", d);
+                Console.WriteLine();
+            }

@@ -4,6 +4,7 @@
 #include "ilRand.h"
 
 #include <vector>
+#include <fstream>
 
 
 
@@ -18,6 +19,8 @@ public:
 	int from = -1,
 		to = -1,
 		weight = 0;
+
+	void Binarize(std::ofstream& str);
 };
 
 
@@ -51,6 +54,8 @@ public:
 
 	SFNetworkOscillatorState(double, std::vector<double>);
 	~SFNetworkOscillatorState();
+
+	void Binarize(std::ofstream& str);
 };
 
 
@@ -76,6 +81,8 @@ public:
 	~SFNetworkOscillator();
 
 	void SimulateDynamicStep();
+
+	void Binarize(char* path);
 private:
 	std::vector<RK4SFunc> funcs;
 

@@ -24,9 +24,9 @@ ilRand::~ilRand()
 }
 
 
-int ilRand::next() {
+ulonglong ilRand::next() {
 	x = ((x * a) % m);
-	return (int)(x % std::numeric_limits<int>::max());
+	return x;
 }
 
 int ilRand::Next()
@@ -39,7 +39,7 @@ int ilRand::Next(int max)
 }
 int ilRand::Next(int min, int max)
 {
-	return next() % (max - min) + min;
+	return (int)(next() % std::numeric_limits<int>::max()) % (max - min) + min;
 }
 
 double ilRand::NextDouble()

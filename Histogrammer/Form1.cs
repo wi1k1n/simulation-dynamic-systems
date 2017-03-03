@@ -37,45 +37,22 @@ namespace Diploma2
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            ilGrapher1.CaptureLoad("ilgraph_capture_test");
-            Dictionary<int, double> data = null;
-            sb.BinaryFormatter bf = new sb.BinaryFormatter();
-            using (io.FileStream fs = io.File.OpenRead(@"network_stat_average_50_3_100"))
-                data = (Dictionary<int, double>)bf.Deserialize(fs);
+            //ilGrapher1.CaptureLoad("ilgraph_capture_test");
+            ilGrapher1.CaptureLoad("phases-network-175-3-065-1-10-1--10-001-1051.ilgc");
 
-            ilGrapher1.CaptureStart();
-            foreach (var d in data)
-            {
-                ilGrapher1.FillCirclePoint(Color.Blue, 2, d.Key, (float)d.Value);
-            }
-            ilGrapher1.CaptureStop();
-            ilGrapher1.CaptureSave("ilgraph_capture_test");
+            //Dictionary<int, double> data = null;
+            //sb.BinaryFormatter bf = new sb.BinaryFormatter();
+            //using (io.FileStream fs = io.File.OpenRead(@"network_stat_average_50_3_100"))
+            //    data = (Dictionary<int, double>)bf.Deserialize(fs);
 
-            #region Previous code
-            /*
-            return;
-            int n = 10000;
-            double wrnd = (max - min) / n;
-            Random rnd = new Random();
-            int cnt = 0;
-            rndData = new List<double>(Enumerable.Repeat(0D, n));
-            for (int j = 0; j < 100; j++)
-            {
-                ilRand irnd = new ilRand(rnd.Next(1, 100));
-                List<int> data = new List<int>();
-                for (int i = 0; i < 4e5; i++)
-                    data.Add(irnd.Next(min, max) - min);
+            //ilGrapher1.CaptureStart();
+            //foreach (var d in data)
+            //{
+            //    ilGrapher1.FillCirclePoint(Color.Blue, 2, d.Key, (float)d.Value);
+            //}
+            //ilGrapher1.CaptureStop();
+            //ilGrapher1.CaptureSave("ilgraph_capture_test");
 
-                List<int> h = new List<int>(Enumerable.Repeat<int>(0, n));
-                for (int i = 0; i < data.Count; i++)
-                    h[(int)(data[i] / wrnd)]++;
-
-                for (int i = 0; i < rndData.Count; i++)
-                    rndData[i] = (rndData[i] * cnt + h[i]) / (cnt + 1);
-                cnt++;
-            }
-
-            return;
             #region Research work data
             sb.BinaryFormatter bf = new sb.BinaryFormatter();
             using (io.FileStream fs = io.File.OpenRead(@"phases"))
@@ -141,8 +118,11 @@ namespace Diploma2
                 hubsPhases.Add(res);
             }
             #endregion
-    */
-            #endregion
+
+            //ilGrapher1.CaptureStart();
+            //IlGrapher1_AfterPaintAxes(this, null);
+            //ilGrapher1.CaptureStop();
+            //ilGrapher1.CaptureSave("phases-network-175-3-065-1-10-1--10-001-1051.ilgc");
         }
 
         private void IlGrapher1_BeforePaintAxes(object sender, PaintEventArgs e)
@@ -151,23 +131,18 @@ namespace Diploma2
 
         private void IlGrapher1_AfterPaintAxes(object sender, EventArgs e)
         {
-            #region Previous code
-            /*
             return;
+            #region Previous code
             float y = 0;
             float x = 0;
 
-            for (int i = 0; i < rndData.Count; i++)
-                ilGrapher1.FillRectangle(Brushes.Red, x+i, y, 1f, (float)rndData[i]);
-
-            return;
             y = -200;
             x = 0;
             foreach (var d in dataSumSignal)
-                ilGrapher1.FillRectangle(Brushes.Red, (float)d.Key, y, 0.08f, d.Value);
+                ilGrapher1.FillRectangle(Color.Red, (float)d.Key, y, 0.8f, d.Value);
             y = 0;
             foreach (var d in dataCoherency)
-                ilGrapher1.FillRectangle(Brushes.Blue, (float)d.Key, y, 0.08f, d.Value);
+                ilGrapher1.FillRectangle(Color.Blue, (float)d.Key, y, 0.8f, d.Value);
             
             x = 0;
             y = 100;
@@ -175,8 +150,8 @@ namespace Diploma2
                 for (int i = 0; i < hists[j].Count; i++) {
                     float xt = x + i,
                         yt = y + j * 20;
-                    if (ilGrapher1.IsOnScreen(xt, yt))
-                        ilGrapher1.FillRectangle(Brushes.Purple, xt, yt, 1, (float)hists[j][i]);
+                    //if (ilGrapher1.IsOnScreen(xt, yt))
+                        ilGrapher1.FillRectangle(Color.Purple, xt, yt, 1, (float)hists[j][i]);
                 }
 
             y = 100;
@@ -186,8 +161,8 @@ namespace Diploma2
                 {
                     float xt = x + i,
                         yt = y + j * 20;
-                    if (ilGrapher1.IsOnScreen(xt, yt))
-                        ilGrapher1.FillRectangle(Brushes.Orange, xt, yt, 1, (float)histsHubs[j][i]);
+                    //if (ilGrapher1.IsOnScreen(xt, yt))
+                        ilGrapher1.FillRectangle(Color.Orange, xt, yt, 1, (float)histsHubs[j][i]);
                 }
 
             y = 100;
@@ -197,10 +172,9 @@ namespace Diploma2
                 {
                     float xt = x + i,
                         yt = y + j * 20;
-                    if (ilGrapher1.IsOnScreen(xt, yt))
-                        ilGrapher1.FillRectangle(Brushes.DarkGreen, xt, yt, 1, (float)hubsPhases[j][i]);
+                    //if (ilGrapher1.IsOnScreen(xt, yt))
+                        ilGrapher1.FillRectangle(Color.DarkGreen, xt, yt, 1, (float)hubsPhases[j][i]);
                 }
-                */
             #endregion
         }
 
