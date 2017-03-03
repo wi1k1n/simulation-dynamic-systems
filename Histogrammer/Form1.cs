@@ -14,9 +14,6 @@ namespace Diploma2
 {
     public partial class Form1 : Form
     {
-        List<Color> colors = new List<Color> {
-            Color.Blue, Color.Green, Color.Red, Color.Orange, Color.Gray, Color.Indigo, Color.DarkCyan, Color.DarkSalmon, Color.DeepSkyBlue, Color.DeepPink, Color.Firebrick, Color.LemonChiffon
-        };
         SortedDictionary<double, double[]> dataRaw = new SortedDictionary<double, double[]>();
         SortedDictionary<double, float> dataSumSignal = new SortedDictionary<double, float>();
         SortedDictionary<double, float> dataCoherency = new SortedDictionary<double, float>();
@@ -32,11 +29,31 @@ namespace Diploma2
         public Form1()
         {
             InitializeComponent();
+
+            ilGrapher1.BeforePaintAxes += IlGrapher1_BeforePaintAxes;
             ilGrapher1.AfterPaintAxes += IlGrapher1_AfterPaintAxes;
             ilGrapher1.Quality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
         }
+
         private void Form1_Load(object sender, EventArgs e)
         {
+            ilGrapher1.CaptureLoad("ilgraph_capture_test");
+            Dictionary<int, double> data = null;
+            sb.BinaryFormatter bf = new sb.BinaryFormatter();
+            using (io.FileStream fs = io.File.OpenRead(@"network_stat_average_50_3_100"))
+                data = (Dictionary<int, double>)bf.Deserialize(fs);
+
+            ilGrapher1.CaptureStart();
+            foreach (var d in data)
+            {
+                ilGrapher1.FillCirclePoint(Color.Blue, 2, d.Key, (float)d.Value);
+            }
+            ilGrapher1.CaptureStop();
+            ilGrapher1.CaptureSave("ilgraph_capture_test");
+
+            #region Previous code
+            /*
+            return;
             int n = 10000;
             double wrnd = (max - min) / n;
             Random rnd = new Random();
@@ -124,10 +141,19 @@ namespace Diploma2
                 hubsPhases.Add(res);
             }
             #endregion
+    */
+            #endregion
+        }
+
+        private void IlGrapher1_BeforePaintAxes(object sender, PaintEventArgs e)
+        {
         }
 
         private void IlGrapher1_AfterPaintAxes(object sender, EventArgs e)
         {
+            #region Previous code
+            /*
+            return;
             float y = 0;
             float x = 0;
 
@@ -174,6 +200,8 @@ namespace Diploma2
                     if (ilGrapher1.IsOnScreen(xt, yt))
                         ilGrapher1.FillRectangle(Brushes.DarkGreen, xt, yt, 1, (float)hubsPhases[j][i]);
                 }
+                */
+            #endregion
         }
 
         private void качествоToolStripMenuItem_Click(object sender, EventArgs e)

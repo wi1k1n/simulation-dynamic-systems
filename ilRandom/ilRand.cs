@@ -13,17 +13,27 @@ namespace Diploma2
 
         private ulong x = 0;
 
+        public int Seed { get; private set; }
+
         public ilRand()
         {
-            x = (ulong)(DateTime.Now.ToBinary() % uint.MaxValue);
+            Seed = (int)(DateTime.Now.ToBinary() % uint.MaxValue);
+            x = (ulong)Seed;
         }
         public ilRand(int seed)
         {
-            x = (ulong)seed;
+            Seed = seed;
+            x = (ulong)Seed;
+        }
+        public void Initialize()
+        {
+            Seed = (int)DateTime.Now.ToBinary();
+            x = (ulong)Seed;
         }
         public void Initialize(int seed)
         {
-            x = (ulong)seed;
+            Seed = seed;
+            x = (ulong)Seed;
         }
 
         public int Next()

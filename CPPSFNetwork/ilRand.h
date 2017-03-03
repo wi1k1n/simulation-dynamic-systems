@@ -5,6 +5,8 @@
 class ilRand
 {
 public:
+	int seed;
+
 	ilRand();
 	ilRand(int seed);
 	~ilRand();
@@ -15,6 +17,8 @@ public:
 	double NextDouble();
 	double NextDouble(double max);
 	double NextDouble(double min, double max);
+	void Initialize();
+	void Initialize(int seed);
 private:
 	const ulonglong m = 1442695040888963407;
 	const ulonglong a = 6364136223846793005;

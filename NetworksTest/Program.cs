@@ -11,6 +11,7 @@ using System.Diagnostics;
 
 namespace Diploma2
 {
+    [Serializable]
     class Program
     {
         static double sin(double x) { return Math.Sin(x); }
@@ -18,16 +19,16 @@ namespace Diploma2
         static double e(double x) { return Math.Exp(x); }
         static void Main(string[] args)
         {
-            int min = 0, max = 10, seed = 170303, n = 100;
-            //Console.WriteLine("Enter min"); min = int.Parse(Console.ReadLine());
-            //Console.WriteLine("Enter max"); min = int.Parse(Console.ReadLine());
-            //Console.WriteLine("Enter seed"); min = int.Parse(Console.ReadLine());
-            //Console.WriteLine("Enter n"); min = int.Parse(Console.ReadLine());
-
-            ilRand rnd = new ilRand(seed);
-            for (int i = 0; i < n; i++)
-                Console.WriteLine(rnd.Next(-50, 50));
-            Console.ReadKey();
+            SFNetworkGenerator sfnwGen = new SFNetworkGenerator();
+            Dictionary<int, double> data = sfnwGen.GenerateSFNetworksAverage(50, 3, 100, new CancellationToken(), 2);
+            Serialize("network_stat_average_50_3_100", data);
+            return;
+            ilRand rnd = new ilRand(170303);
+            SFNetwork nww = new SFNetwork(100, 3);
+            string s = "";
+            for (int i = 0; i < nww.Edges.Count; i++)
+                s += nww.Edges[i].From + "\t" + nww.Edges[i].To + "\t" + nww.Edges[i].Weight + "\n";
+            File.WriteAllText("network_ilrand_test.txt", s);
         }
         static void Serialize(string path, params object[] obj)
         {

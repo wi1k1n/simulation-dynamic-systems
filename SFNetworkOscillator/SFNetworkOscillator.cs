@@ -37,7 +37,6 @@ namespace Diploma2
         public double TimeInit { get; private set; }
         public double TimeStep { get; private set; }
         public double SolveStep { get; private set; }
-        public double RandomSeed { get; private set; }
 
         public double Time { get; private set; }
 
@@ -52,13 +51,13 @@ namespace Diploma2
 
         public SFNetworkOscillator(int node_count, int mlt, double strength, double freqMin, double freqMax, double phaseMin, double phaseMax, double time_init, double time_step, double solve_step) : base(node_count, mlt)
         {
-            constructor(strength, time_init, freqMin, freqMax, phaseMin, phaseMax, time_step, solve_step, new Random().Next());
+            constructor(strength, time_init, freqMin, freqMax, phaseMin, phaseMax, time_step, solve_step);
         }
         public SFNetworkOscillator(int node_count, int mlt, double strength, double freqMin, double freqMax, double phaseMin, double phaseMax, double time_init, double time_step, double solve_step, int seed) : base(node_count, mlt, seed)
         {
-            constructor(strength, time_init, freqMin, freqMax, phaseMin, phaseMax, time_step, solve_step, seed);
+            constructor(strength, time_init, freqMin, freqMax, phaseMin, phaseMax, time_step, solve_step);
         }
-        private void constructor(double strength, double time_init, double freqMin, double freqMax, double phaseMin, double phaseMax, double time_step, double solve_step, int seed)
+        private void constructor(double strength, double time_init, double freqMin, double freqMax, double phaseMin, double phaseMax, double time_step, double solve_step)
         {
             Strength = strength;
             FrequenciesInitMin = freqMin;
@@ -69,16 +68,13 @@ namespace Diploma2
             Time = time_init;
             TimeStep = time_step;
             SolveStep = solve_step;
-            RandomSeed = seed;
-
-            Random rnd = new Random(seed);
 
             Frequencies = new double[Nodes.Count];
             Phases = new double[Nodes.Count];
             for (int i = 0; i < Nodes.Count; i++)
             {
-                Frequencies[i] = random(freqMin, freqMax, rnd);
-                Phases[i] = random(phaseMin, phaseMax, rnd);
+                Frequencies[i] = ilRandom.NextDouble(freqMin, freqMax);
+                Phases[i] = ilRandom.NextDouble(phaseMin, phaseMax);
             }
             States = new List<SFNetworkOscillatorState> { new SFNetworkOscillatorState(Time, Phases) };
 
@@ -145,14 +141,6 @@ namespace Diploma2
         {
             for (int i = 0; i < Phases.Length; i++)
                 Phases[i] = Phases[i] - (int)(Phases[i] / pi2) * pi2;
-        }
-        private double random(double min = 0, double max = 1)
-        {
-            return new Random().NextDouble() * (max - min) + min;
-        }
-        private double random(double min = 0, double max = 1, Random rnd = null)
-        {
-            return rnd.NextDouble() * (max - min) + min;
         }
     }
 }

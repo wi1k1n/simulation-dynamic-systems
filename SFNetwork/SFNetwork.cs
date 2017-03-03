@@ -12,21 +12,27 @@ namespace Diploma2
     [Serializable]
     public class SFNetwork : Network
     {
+        protected ilRand ilRandom = null;
+
         public int Multiplier { get; private set; }
+        public double RandomSeed { get; private set; }
 
         public SFNetwork() { }
         public SFNetwork(int node_count, int edge_multiplier)
         {
-            Multiplier = edge_multiplier;
-            Generate(node_count, edge_multiplier, new Random());
+            ilRandom = new ilRand();
+            RandomSeed = ilRandom.Seed;
+            Generate(node_count, edge_multiplier);
         }
         public SFNetwork(int node_count, int edge_multiplier, int seed)
         {
-            Multiplier = edge_multiplier;
-            Generate(node_count, edge_multiplier, new Random(seed));
+            ilRandom = new ilRand(seed);
+            RandomSeed = ilRandom.Seed;
+            Generate(node_count, edge_multiplier);
         }
-        private void Generate(int node_count, int edge_multiplier, Random rnd)
+        private void Generate(int node_count, int edge_multiplier)
         {
+            Multiplier = edge_multiplier;
             Edges = new List<Edge>();
 
             // Generating LCD diagram
@@ -38,10 +44,10 @@ namespace Diploma2
             for (int i = 0; i < m; i++)
             {
                 // Searching random values from the alphabet for both starting and ending of lcd-edge
-                int r1 = alphabet[rnd.Next(0, alphabet.Count)];
+                int r1 = alphabet[ilRandom.Next(0, alphabet.Count)];
                 alphabet.Remove(r1);
-                rnd.Next(); // Do not rly need, but w/o it lcd diagrams seems too similar
-                int r2 = alphabet[rnd.Next(0, alphabet.Count)];
+                ilRandom.Next(); // Do not rly need, but w/o it lcd diagrams seems too similar
+                int r2 = alphabet[ilRandom.Next(0, alphabet.Count)];
                 alphabet.Remove(r2);
                 lcd[Math.Max(r1, r2)] = Math.Min(r1, r2);
             }

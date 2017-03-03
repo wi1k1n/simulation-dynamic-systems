@@ -1,4 +1,5 @@
 #include "SFNetwork.h"
+#include "ilRand.h"
 
 #include <vector>
 #include <algorithm>
@@ -22,22 +23,18 @@ Edge::~Edge()
 
 
 
-SFNetwork::SFNetwork(int nodes, int mlt)
-{
-	node_count = nodes;
-	multiplier = mlt;
-
-	int m = node_count * mlt,
+void SFNetwork::generate() {
+	int m = node_count * multiplier,
 		l = 2 * m;
 	std::vector<int> alphabet(l);
 	for (int i = 0; i < l; i++) alphabet[i] = i;
 	std::vector<int> lcd(l, -1);
 	for (int i = 0; i < m; i++)
 	{
-		int i1 = random(alphabet.size(), 0),
+		int i1 = ilRandom.Next(0, alphabet.size()),
 			r1 = alphabet[i1];
 		alphabet.erase(alphabet.begin() + i1);
-		int i2 = random(alphabet.size(), 0),
+		int i2 = ilRandom.Next(0, alphabet.size()),
 			r2 = alphabet[i2];
 		alphabet.erase(alphabet.begin() + i2);
 		lcd[std::max(r1, r2)] = std::min(r1, r2);
@@ -71,14 +68,24 @@ SFNetwork::SFNetwork(int nodes, int mlt)
 		else edges[j].weight++;
 	}
 }
+SFNetwork::SFNetwork(int nodes, int mlt)
+{
+	ilRandom.Initialize();
+	seed = ilRandom.seed;
+	node_count = nodes;
+	multiplier = mlt;
+	generate();
+}
+SFNetwork::SFNetwork(int nodes, int mlt, int s)
+{
+	ilRandom.Initialize(s);
+	seed = ilRandom.seed;
+	node_count = nodes;
+	multiplier = mlt;
+	generate();
+}
 SFNetwork::~SFNetwork()
 {
-}
-int SFNetwork::random(int max = RAND_MAX, int min = 0) {
-	return min + rand() % max;
-}
-double SFNetwork::random(double max = RAND_MAX, double min = 0) {
-	return std::uniform_real_distribution<double>(min, max)(std::default_random_engine(rand()));
 }
 
 
@@ -90,7 +97,7 @@ SFNetworkOscillatorState::SFNetworkOscillatorState(double t, std::vector<double>
 }
 SFNetworkOscillatorState::~SFNetworkOscillatorState() {};
 
-void SFNetworkOscillator::constructor(double str, double f_min, double f_max, double p_min, double p_max, double t_init, double t_step, double s_step, int seed) {
+void SFNetworkOscillator::constructor(double str, double f_min, double f_max, double p_min, double p_max, double t_init, double t_step, double s_step) {
 	strength = str;
 	freq_init_min = f_min;
 	freq_init_max = f_max;
@@ -100,16 +107,13 @@ void SFNetworkOscillator::constructor(double str, double f_min, double f_max, do
 	time = t_init;
 	time_step = t_step;
 	solve_step = s_step;
-	random_seed = seed;
-
-	srand(seed);
 
 	freqs = std::vector<double>(node_count);
 	phases = std::vector<double>(node_count);
 	for (int i = 0; i < node_count; i++)
 	{
-		freqs[i] = random(f_max, f_min);
-		phases[i] = random(p_max, p_min);
+		freqs[i] = ilRandom.NextDouble(f_max, f_min);
+		phases[i] = ilRandom.NextDouble(p_max, p_min);
 	}
 	states = std::vector<SFNetworkOscillatorState>{ SFNetworkOscillatorState(time, phases) };
 	funcs = std::vector<RK4SFunc>(node_count);
@@ -134,17 +138,16 @@ void SFNetworkOscillator::constructor(double str, double f_min, double f_max, do
 	}
 }
 SFNetworkOscillator::SFNetworkOscillator(int node_count, int mlt, double strength, double freq_min, double freq_max, double phase_min, double phase_max, double time_init, double time_step, double solve_step) : SFNetwork(node_count, mlt) {
-	constructor(strength, freq_min, freq_max, phase_min, phase_max, time_init, time_step, solve_step, rand());
+	constructor(strength, freq_min, freq_max, phase_min, phase_max, time_init, time_step, solve_step);
 }
-SFNetworkOscillator::SFNetworkOscillator(int node_count, int mlt, double strength, double freq_min, double freq_max, double phase_min, double phase_max, double time_init, double time_step, double solve_step, int random_seed) : SFNetwork(node_count, mlt) {
-	constructor(strength, freq_min, freq_max, phase_min, phase_max, time_init, time_step, solve_step, random_seed);
+SFNetworkOscillator::SFNetworkOscillator(int node_count, int mlt, double strength, double freq_min, double freq_max, double phase_min, double phase_max, double time_init, double time_step, double solve_step, int random_seed) : SFNetwork(node_count, mlt, random_seed) {
+	constructor(strength, freq_min, freq_max, phase_min, phase_max, time_init, time_step, solve_step);
 }
 SFNetworkOscillator::~SFNetworkOscillator() {};
 
 void SFNetworkOscillator::phasesNormalize() {
 	for (int i = 0; i < phases.size(); i++)
-		if (phases[i] > PI2)
-			phases[i] = phases[i] - (int)(phases[i] / PI2) * PI2;
+		phases[i] = phases[i] - (int)(phases[i] / PI2) * PI2;
 }
 void SFNetworkOscillator::SimulateDynamicStep() {
 	RK4SResult result = RK4S::Solve(funcs, time, phases, time + time_step, solve_step);

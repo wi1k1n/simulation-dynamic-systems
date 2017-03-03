@@ -18,7 +18,7 @@ namespace Diploma2
         private int nwCounter = 0;
         private object locker = new object();
         private Stopwatch sw = new Stopwatch();
-        private Random rnd = new Random();
+        private ilRand rnd = new ilRand();
         private CancellationToken cancel;
         private TimeSpan timeRem = new TimeSpan();
 

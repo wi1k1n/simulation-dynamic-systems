@@ -25,19 +25,14 @@ double measureRuntime(const function<void()> f) {
 }
 
 int main(int argc, char* argv) {
+	freopen("ouput.txt", "w", stdout);
 	double start = clock();
 	srand(start);
 	double runtime = measureRuntime([start]()->void {
-		int min = 0, max = 10, seed = 170303, n = 100;
-		/*cout << "Enter min:" << endl; cin >> min;
-		cout << "Enter max:" << endl; cin >> max;
-		cout << "Enter seed:" << endl; cin >> seed;
-		cout << "Enter N:" << endl; cin >> n;*/
-
-		ilRand rnd(seed);
-		vector<int> vec(n);
-		for (int i = 0; i < vec.size(); i++)
-			cout << rnd.Next(-50, 50) << endl;
+		ilRand rnd(170303);
+		SFNetwork nww(100, 3);
+		for (int i = 0; i < nww.edges.size(); i++)
+			cout << nww.edges[i].from << "\t" << nww.edges[i].to << "\t" << nww.edges[i].weight << "\n";
 		return;
 		SFNetworkOscillator nw(100, 3, .65, 1, 10, -PI, PI, 0, .1, .001, 170302);
 		for (int i = 0; i < 100; i++) {

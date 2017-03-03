@@ -10,11 +10,12 @@
 
 ilRand::ilRand()
 {
-	x = (ulonglong)(clock() % UINT_MAX);
+	seed = (int)(clock() % UINT_MAX);
+	x = (ulonglong)(seed);
 }
-ilRand::ilRand(int seed)
+ilRand::ilRand(int s)
 {
-	x = seed;
+	x = seed = s;
 }
 
 
@@ -52,4 +53,11 @@ double ilRand::NextDouble(double max)
 double ilRand::NextDouble(double min, double max)
 {
 	return (next() / (double)m) * (max - min) + min;
+}
+
+void ilRand::Initialize() {
+	x = seed = clock();
+}
+void ilRand::Initialize(int s) {
+	x = seed = s;
 }

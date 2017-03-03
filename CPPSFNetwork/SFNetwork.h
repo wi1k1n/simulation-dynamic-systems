@@ -1,6 +1,7 @@
 #pragma once
 #include "Edge.h"
 #include "RK4S.h"
+#include "ilRand.h"
 
 #include <vector>
 
@@ -25,15 +26,18 @@ public:
 class SFNetwork
 {
 public:
-	SFNetwork(int, int);
+	SFNetwork(int node_count, int mlt);
+	SFNetwork(int node_count, int mlt, int seed);
 	~SFNetwork();
 
 	int node_count = 0,
-		multiplier = 1;
+		multiplier = 1,
+		seed;
 	std::vector<Edge> edges;
+private:
+	void generate();
 protected:
-	int random(int, int);
-	double random(double, double);
+	ilRand ilRandom;
 };
 
  
@@ -62,7 +66,6 @@ public:
 		solve_step,
 		
 		time;
-	int random_seed;
 
 	std::vector<double> phases,
 		freqs;
@@ -76,6 +79,6 @@ public:
 private:
 	std::vector<RK4SFunc> funcs;
 
-	void constructor(double str, double f_min, double f_max, double p_min, double p_max, double t_init, double t_step, double s_step, int seed);
+	void constructor(double str, double f_min, double f_max, double p_min, double p_max, double t_init, double t_step, double s_step);
 	void phasesNormalize();
 };
