@@ -88,6 +88,10 @@
       <Project>{C7A3DB5F-61B8-4780-93F4-5C859AF9F332}</Project>
       <Name>ilGrapher</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ilRandom\ilRandom.csproj">
+      <Project>{532a97fc-cdb1-4def-bb91-9a70461686f7}</Project>
+      <Name>ilRandom</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Network\Network.csproj">
       <Project>{760075af-b019-48c8-9922-31bc2b78401b}</Project>
       <Name>Network</Name>

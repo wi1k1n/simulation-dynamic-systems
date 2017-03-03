@@ -26,6 +26,9 @@ namespace Diploma2
         List<List<double>> hubsPhases = new List<List<double>>();
         const int M = 10;
 
+        int min = (int)-1e5, max = (int)1e5;
+        List<double> rndData = new List<double>();
+
         public Form1()
         {
             InitializeComponent();
@@ -34,6 +37,29 @@ namespace Diploma2
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            int n = 10000;
+            double wrnd = (max - min) / n;
+            Random rnd = new Random();
+            int cnt = 0;
+            rndData = new List<double>(Enumerable.Repeat(0D, n));
+            for (int j = 0; j < 100; j++)
+            {
+                ilRand irnd = new ilRand(rnd.Next(1, 100));
+                List<int> data = new List<int>();
+                for (int i = 0; i < 4e5; i++)
+                    data.Add(irnd.Next(min, max) - min);
+
+                List<int> h = new List<int>(Enumerable.Repeat<int>(0, n));
+                for (int i = 0; i < data.Count; i++)
+                    h[(int)(data[i] / wrnd)]++;
+
+                for (int i = 0; i < rndData.Count; i++)
+                    rndData[i] = (rndData[i] * cnt + h[i]) / (cnt + 1);
+                cnt++;
+            }
+
+            return;
+            #region Research work data
             sb.BinaryFormatter bf = new sb.BinaryFormatter();
             using (io.FileStream fs = io.File.OpenRead(@"phases"))
                 dataRaw = (SortedDictionary<double, double[]>)bf.Deserialize(fs);
@@ -97,18 +123,26 @@ namespace Diploma2
                 }
                 hubsPhases.Add(res);
             }
+            #endregion
         }
 
         private void IlGrapher1_AfterPaintAxes(object sender, EventArgs e)
         {
-            float y = -200;
+            float y = 0;
             float x = 0;
+
+            for (int i = 0; i < rndData.Count; i++)
+                ilGrapher1.FillRectangle(Brushes.Red, x+i, y, 1f, (float)rndData[i]);
+
+            return;
+            y = -200;
+            x = 0;
             foreach (var d in dataSumSignal)
-                ilGrapher1.FillRectangle(Brushes.Red, (float)d.Key, y, 0.8f, d.Value);
+                ilGrapher1.FillRectangle(Brushes.Red, (float)d.Key, y, 0.08f, d.Value);
             y = 0;
             foreach (var d in dataCoherency)
-                ilGrapher1.FillRectangle(Brushes.Blue, (float)d.Key, y, 0.8f, d.Value);
-
+                ilGrapher1.FillRectangle(Brushes.Blue, (float)d.Key, y, 0.08f, d.Value);
+            
             x = 0;
             y = 100;
             for (int j = 0; j < hists.Count; j++)

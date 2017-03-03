@@ -1,5 +1,6 @@
 #include "SFNetwork.h"
 #include "RK4S.h"
+#include "ilRand.h"
 
 #include <iostream>
 #include <vector>
@@ -27,6 +28,17 @@ int main(int argc, char* argv) {
 	double start = clock();
 	srand(start);
 	double runtime = measureRuntime([start]()->void {
+		int min = 0, max = 10, seed = 170303, n = 100;
+		/*cout << "Enter min:" << endl; cin >> min;
+		cout << "Enter max:" << endl; cin >> max;
+		cout << "Enter seed:" << endl; cin >> seed;
+		cout << "Enter N:" << endl; cin >> n;*/
+
+		ilRand rnd(seed);
+		vector<int> vec(n);
+		for (int i = 0; i < vec.size(); i++)
+			cout << rnd.Next(-50, 50) << endl;
+		return;
 		SFNetworkOscillator nw(100, 3, .65, 1, 10, -PI, PI, 0, .1, .001, 170302);
 		for (int i = 0; i < 100; i++) {
 			double local_start = clock();

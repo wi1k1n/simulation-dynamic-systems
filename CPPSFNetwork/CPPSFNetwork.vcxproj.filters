@@ -24,12 +24,18 @@
     <ClCompile Include="RK4S.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ilRand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFNetwork.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RK4S.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ilRand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

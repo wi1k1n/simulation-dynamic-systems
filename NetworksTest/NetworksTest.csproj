@@ -68,6 +68,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ilRandom\ilRandom.csproj">
+      <Project>{532a97fc-cdb1-4def-bb91-9a70461686f7}</Project>
+      <Name>ilRandom</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Network\Network.csproj">
       <Project>{760075af-b019-48c8-9922-31bc2b78401b}</Project>
       <Name>Network</Name>

@@ -142,11 +142,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ilRand.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RK4S.cpp" />
     <ClCompile Include="SFNetwork.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ilRand.h" />
     <ClInclude Include="RK4S.h" />
     <ClInclude Include="SFNetwork.h" />
   </ItemGroup>

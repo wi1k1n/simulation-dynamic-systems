@@ -18,45 +18,15 @@ namespace Diploma2
         static double e(double x) { return Math.Exp(x); }
         static void Main(string[] args)
         {
-            Stopwatch sww = new Stopwatch();
-            sww.Start();
-            SFNetwork sfnw = new SFNetwork(10000, 3);
-            sww.Stop();
-            Console.WriteLine(sww.Elapsed);
-            return;
-            SFNetworkOscillator nw = new SFNetworkOscillator(175, 3, 0.45, 1, 10, -Math.PI, Math.PI, -10, 1, 0.01, 123);
-            nw.Serialize("network-175-3-045-1-10-1--10-001");
-            SortedDictionary<double, double[]> l = new SortedDictionary<double, double[]>();
-            Stopwatch sw = new Stopwatch();
+            int min = 0, max = 10, seed = 170303, n = 100;
+            //Console.WriteLine("Enter min"); min = int.Parse(Console.ReadLine());
+            //Console.WriteLine("Enter max"); min = int.Parse(Console.ReadLine());
+            //Console.WriteLine("Enter seed"); min = int.Parse(Console.ReadLine());
+            //Console.WriteLine("Enter n"); min = int.Parse(Console.ReadLine());
 
-            CancellationTokenSource ctSrc = new CancellationTokenSource();
-            Task task = new Task(() =>
-            {
-                l.Add(nw.Time, nw.Phases);
-                Console.WriteLine("Time: {0:F5}\t\t0", nw.Time);
-                for (int j = 0; j < 100000; j++)
-                {
-                    if (ctSrc.IsCancellationRequested)
-                        break;
-                    sw.Restart();
-                    nw.SimulateDynamicStep();
-                    sw.Stop();
-                    l.Add(nw.Time, nw.Phases);
-                    Console.WriteLine("Time: {0:F5}\t\t{1}", nw.Time, sw.Elapsed);
-                }
-                Serialize("phases-175-3-045-1-10-1--10-001-100000", l);
-                Console.WriteLine("Serializing finished!");
-            }, ctSrc.Token);
-            task.Start();
-
-            bool cliStop = false;
-            while (!cliStop)
-            {
-                string s = Console.ReadLine();
-                if (s == "stop")
-                    ctSrc.Cancel();
-            }
-
+            ilRand rnd = new ilRand(seed);
+            for (int i = 0; i < n; i++)
+                Console.WriteLine(rnd.Next(-50, 50));
             Console.ReadKey();
         }
         static void Serialize(string path, params object[] obj)

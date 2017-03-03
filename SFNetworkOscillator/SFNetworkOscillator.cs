@@ -19,6 +19,10 @@ namespace Diploma2
             Time = time;
             Phases = phases;
         }
+        public override string ToString()
+        {
+            return "[" + Time + ": " + Phases.Length + " phases]";
+        }
     }
     [Serializable]
     public class SFNetworkOscillator : SFNetwork
@@ -140,8 +144,7 @@ namespace Diploma2
         private void phasesNormalize()
         {
             for (int i = 0; i < Phases.Length; i++)
-                if (Phases[i] > pi2)
-                    Phases[i] = Phases[i] - (int)(Phases[i] / pi2) * pi2;
+                Phases[i] = Phases[i] - (int)(Phases[i] / pi2) * pi2;
         }
         private double random(double min = 0, double max = 1)
         {
