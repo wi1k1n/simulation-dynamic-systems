@@ -25,6 +25,12 @@ namespace Diploma2
             Seed = seed;
             x = (ulong)Seed;
         }
+        public ilRand(int seed, ulong x)
+        {
+            Seed = seed;
+            x = x;
+        }
+
         public void ChangeSeed()
         {
             Seed = (int)DateTime.Now.ToBinary();

@@ -30,6 +30,20 @@ namespace Diploma2
             RandomSeed = ilRandom.Seed;
             Generate(node_count, edge_multiplier);
         }
+        public SFNetwork(int node_count, int edge_multiplier, Edge[] edges)
+        {
+            ilRandom = new ilRand();
+            RandomSeed = ilRandom.Seed;
+            Multiplier = edge_multiplier;
+            Edges = new List<Edge>(edges);
+        }
+        public SFNetwork(int node_count, int edge_multiplier, Edge[] edges, ilRand rnd) : base(edges)
+        {
+            Multiplier = edge_multiplier;
+            ilRandom = rnd;
+            RandomSeed = ilRandom.Seed;
+        }
+
         private void Generate(int node_count, int edge_multiplier)
         {
             Multiplier = edge_multiplier;

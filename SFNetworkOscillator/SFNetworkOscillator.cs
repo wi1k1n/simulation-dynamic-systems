@@ -23,6 +23,18 @@ namespace Diploma2
         {
             return "[" + Time + ": " + Phases.Length + " phases]";
         }
+
+        public static SFNetworkOscillatorState Debinarize(BinaryReader br)
+        {
+            double time;
+            int phaseCount;
+            time = BitConverter.ToDouble(br.ReadBytes(8), 0);
+            phaseCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
+            List<double> phases = new List<double>();
+            for (int i = 0; i < phaseCount; i++)
+                phases.Add(BitConverter.ToDouble(br.ReadBytes(8), 0));
+            return new SFNetworkOscillatorState(time, phases.ToArray());
+        }
     }
     [Serializable]
     public class SFNetworkOscillator : SFNetwork
@@ -77,7 +89,10 @@ namespace Diploma2
                 Phases[i] = ilRandom.NextDouble(phaseMin, phaseMax);
             }
             States = new List<SFNetworkOscillatorState> { new SFNetworkOscillatorState(Time, Phases) };
-
+            constructorFuncs();
+        }
+        private void constructorFuncs()
+        {
             funcs = new RK4S.RK4SFunc[Nodes.Count];
             for (int i = 0; i < funcs.Length; i++)
                 funcs[i] = (ind, t, x) =>
@@ -143,17 +158,82 @@ namespace Diploma2
                 Phases[i] = Phases[i] - (int)(Phases[i] / pi2) * pi2;
         }
 
-
-        public int LoadFromBinary(string path)
+        public SFNetworkOscillator(int nodeCount, int mlt, int seed, ulong x, Edge[] edges, double strength, double freqMin, double freqMax, double phaseMin, double phaseMax, double time_init, double time_step, double solve_step, double time, double[] phases, double[] freqs, SFNetworkOscillatorState[] states)
+            : base(nodeCount, mlt, edges, new ilRand(seed, x))
+        {
+            Strength = strength;
+            FrequenciesInitMin = freqMin;
+            FrequenciesInitMax = freqMax;
+            PhasesInitMin = phaseMin;
+            PhasesInitMax = phaseMax;
+            TimeInit = time_init;
+            Time = time;
+            TimeStep = time_step;
+            SolveStep = solve_step;
+            Phases = phases;
+            Frequencies = freqs;
+            States = new List<SFNetworkOscillatorState>(states);
+            constructorFuncs();
+        }
+        public static SFNetworkOscillator Debinarize(string path)
         {
             try
             {
+                int version, nodeCount, mlt, seed, edgeCount, phaseCount, freqCount, stateCount;
+                ulong x;
+                double strength,
+                    freq_init_min,
+                    freq_init_max,
+                    phase_init_min,
+                    phase_init_max,
+                    time_init,
+                    time_step,
+                    solve_step,
+
+                    time;
                 using (BinaryReader br = new BinaryReader(File.OpenRead(path)))
                 {
+                    version = br.ReadBytes(1)[0];
+                    nodeCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                    mlt = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                    seed = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                    x = (ulong)BitConverter.ToInt64(br.ReadBytes(8), 0);
+
+                    edgeCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                    List<Edge> edges = new List<Edge>();
+                    for (int i = 0; i < edgeCount; i++)
+                        edges.Add(Edge.Debinarize(br));
+
+                    strength = BitConverter.ToDouble(br.ReadBytes(8), 0);
+                    freq_init_min = BitConverter.ToDouble(br.ReadBytes(8), 0);
+                    freq_init_max = BitConverter.ToDouble(br.ReadBytes(8), 0);
+                    phase_init_min = BitConverter.ToDouble(br.ReadBytes(8), 0);
+                    phase_init_max = BitConverter.ToDouble(br.ReadBytes(8), 0);
+                    time_init = BitConverter.ToDouble(br.ReadBytes(8), 0);
+                    time_step = BitConverter.ToDouble(br.ReadBytes(8), 0);
+                    solve_step = BitConverter.ToDouble(br.ReadBytes(8), 0);
+                    time = BitConverter.ToDouble(br.ReadBytes(8), 0);
+
+                    phaseCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                    List<double> phases = new List<double>();
+                    for (int i = 0; i < phaseCount; i++)
+                        phases.Add(BitConverter.ToDouble(br.ReadBytes(8), 0));
+
+                    freqCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                    List<double> freqs = new List<double>();
+                    for (int i = 0; i < freqCount; i++)
+                        freqs.Add(BitConverter.ToDouble(br.ReadBytes(8), 0));
+
+                    stateCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                    List<SFNetworkOscillatorState> states = new List<SFNetworkOscillatorState>();
+                    for (int i = 0; i < stateCount; i++)
+                        states.Add(SFNetworkOscillatorState.Debinarize(br));
+
+                    return new SFNetworkOscillator(nodeCount, mlt, seed, x, edges.ToArray(), strength, freq_init_min, freq_init_max, phase_init_min, phase_init_max, time_init, time_step, solve_step, time, phases.ToArray(), freqs.ToArray(), states.ToArray());
                 }
             }
-            catch (Exception e) { return 1; }
-            return 0;
+            catch (Exception e) { return null; }
+            return null;
         }
     }
 }

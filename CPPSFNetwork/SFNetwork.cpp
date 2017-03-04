@@ -174,13 +174,22 @@ void SFNetworkOscillator::SimulateDynamicStep() {
 	states.push_back(SFNetworkOscillatorState(time, phases));
 }
 
-void SFNetworkOscillator::Binarize(char* path) {
+void SFNetworkOscillator::Binarize(char* path, char version) {
+	switch (version)
+	{
+		case 1:
+			Binarize_v1(path); break;
+		default: break;
+	}
+}
+void SFNetworkOscillator::Binarize_v1(char* path) {
 	std::ofstream ofile(path, std::ios::binary);
-	//ofile.write((char*)1, sizeof(float));
+	char version = 1;
+	ofile.write(&version, sizeof(char));
 	ofile.write((char*)&node_count, sizeof(int));
 	ofile.write((char*)&multiplier, sizeof(int));
 	ofile.write((char*)&seed, sizeof(int));
-	ofile.write((char*)&ilRandom.x, sizeof(unsigned long long));
+	ofile.write((char*)&ilRandom.x, sizeof(long long));
 	int edge_count = edges.size();
 	ofile.write((char*)&edge_count, sizeof(int));
 	for (Edge edg : edges)
@@ -206,7 +215,7 @@ void SFNetworkOscillator::Binarize(char* path) {
 	for (double fr : freqs)
 		ofile.write((char*)&fr, sizeof(double));
 
-	int state_count = freqs.size();
+	int state_count = states.size();
 	ofile.write((char*)&state_count, sizeof(int));
 	for (SFNetworkOscillatorState st : states)
 		st.Binarize(ofile);

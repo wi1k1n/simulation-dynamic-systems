@@ -37,6 +37,15 @@ namespace Diploma2
             {
                 return "(" + From + "; " + To + "): " + Weight;
             }
+
+            public static Edge Debinarize(BinaryReader br)
+            {
+                int from, to, weight;
+                from = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                to = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                weight = BitConverter.ToInt32(br.ReadBytes(4), 0);
+                return new Edge(from, to, weight);
+            }
         }
 
         [Serializable]

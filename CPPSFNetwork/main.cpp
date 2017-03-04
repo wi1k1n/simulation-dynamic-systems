@@ -26,17 +26,26 @@ double measureRuntime(const function<void()> f) {
 }
 
 void foo() {
-	SFNetworkOscillator nw(300, 3, .65, 1, 10, -PI, PI, 0, 1, 0.01, 625);
-	nw.Binarize("network.bin");
-	return;
-	vector<int> vec(3, 2);
-	vec[0] = -3;
-	vec[2] = 51;
-	std::ofstream ofile("foo.bin", ios::binary);
-	for (int i : vec)
-		ofile.write((char*)&i, sizeof(i));
-
-	return;
+	double start_local = clock();
+	SFNetworkOscillator nw(75, 3, .65, 1, 10, -PI, PI, 0, 1, 0.01, 625);
+	cout << "Network generated in " << clock() - start_local << "ms" << endl;
+	for (int i = 0; i < 2; i++) {
+		start_local = clock();
+		nw.SimulateDynamicStep();
+		cout << "Dynamic:\ttime: " << nw.time << "\t" << clock() - start_local << "ms" << endl;
+	}
+	nw.Binarize("network_50_3.bin", 1);
+	cout << "Network successfully binarized. Press any key to resume." << endl;
+	int t;
+	cin >> t;
+	for (int i = 0; i < 5; i++) {
+		start_local = clock();
+		nw.SimulateDynamicStep();
+		cout << "Dynamic:\ttime: " << nw.time << "\t" << clock() - start_local << "ms" << endl;
+	}
+	cout << endl << "time: " << nw.time << endl;
+	for (double d : nw.phases)
+		cout << d << endl;
 }
 
 double start = clock();

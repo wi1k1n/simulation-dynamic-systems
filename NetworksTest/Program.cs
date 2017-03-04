@@ -19,16 +19,15 @@ namespace Diploma2
         static double e(double x) { return Math.Exp(x); }
         static void Main(string[] args)
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(@"D:/MISiS/НИР/8с Анализ безмасштабной сети/Project/Diploma2/CPPSFNetwork/network.bin")))
+            SFNetworkOscillator nw = SFNetworkOscillator.Debinarize(@"D:/MISiS/НИР/8с Анализ безмасштабной сети/Project/Diploma2/x64/Release/network_50_3.bin");
+            for (int i = 0; i < 5; i++)
             {
-                int nodeCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
-                int mlt = BitConverter.ToInt32(br.ReadBytes(4), 0);
-                int seed = BitConverter.ToInt32(br.ReadBytes(4), 0);
-                ulong x = (ulong)BitConverter.ToInt64(br.ReadBytes(8), 0);
-                int edgeCount = BitConverter.ToInt32(br.ReadBytes(4), 0);
-                for (int i = 0; i < edgeCount; i++)
-                    Console.WriteLine(new Edge(BitConverter.ToInt32(br.ReadBytes(4), 0), BitConverter.ToInt32(br.ReadBytes(4), 0), BitConverter.ToInt32(br.ReadBytes(4), 0)));
+                nw.SimulateDynamicStep();
+                Console.WriteLine("time: {0}", nw.Time);
             }
+            Console.WriteLine("\ntime: {0}", nw.Time);
+            foreach (double d in nw.Phases)
+                Console.WriteLine(d);
             Console.ReadKey();
         }
         static void Serialize(string path, params object[] obj)
