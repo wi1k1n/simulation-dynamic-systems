@@ -114,7 +114,6 @@ namespace Diploma2
                 }
                 catch (Exception ex) { MessageBox.Show("Error occured while loading file: " + ex.Message, "Loading error"); }
             }
-            
         }
         private void InitializeMacro()
         {
@@ -133,7 +132,7 @@ namespace Diploma2
                     sumCoh += cos;
                     sumCohi += Math.Sin(d.Phases[j]);
                 }
-                sumCoh = (Math.Sqrt(Math.Pow(sumCoh / d.Phases.Length, 2) + Math.Pow(sumCohi / d.Phases.Length, 2)));
+                sumCoh = (Math.Sqrt(Math.Pow(sumCoh, 2) + Math.Pow(sumCohi, 2)) / d.Phases.Length);
                 macroSumSignal.Add(new KeyValuePair<double, double>(d.Time, sumSig));
                 macroCoherency.Add(new KeyValuePair<double, double>(d.Time, sumCoh));
             }

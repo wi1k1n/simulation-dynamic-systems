@@ -196,7 +196,7 @@ namespace Diploma2
         private void VisualizeNetwork()
         {
             // Radius sizes of the whole network
-            float min_rad = 40;
+            float min_rad = 20;
             // Vertex radiuses
             float max_size = 26, min_size = 8;
 
@@ -210,7 +210,7 @@ namespace Diploma2
                 if (min_degree > d.Value)
                     min_degree = d.Value;
             }
-            float it = (Math.Min(nwRect.Width * .6f, nwRect.Height * .6f) - min_rad) / (max_degree - min_degree);
+            float it = (Math.Min(nwRect.Width * .7f, nwRect.Height * .7f) - min_rad) / (max_degree - min_degree);
             float it_size = (max_size - min_size) / (max_degree - min_degree);
 
             pts = new List<Vertex>();

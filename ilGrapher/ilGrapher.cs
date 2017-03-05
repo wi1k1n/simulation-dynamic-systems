@@ -21,7 +21,7 @@ namespace Diploma2
         double zx = 1; // This is needed to reduce calculations on Math.Pow(zoomX, zoonDir.X)
         double zy = 1;
         Point zoomDir = new Point(1, 1);
-        float zoomStep = 1.15f; // Rate of changing itemWidth
+        float zoomStep = 1.05f; // Rate of changing itemWidth
         Point lineNumber = new Point(5, 5);
         float axisItemMin = 128, axisItemMax = 0;
         float axisItemWidth = 128; // Grid item size in pixels
