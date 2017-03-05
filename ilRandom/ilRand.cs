@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Diploma2
 {
+    [Serializable]
     public class ilRand
     {
         private const ulong m = 1442695040888963407;

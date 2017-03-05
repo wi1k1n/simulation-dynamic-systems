@@ -4,15 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DDA1CCE6-8A6F-49C6-9A43-7ABEDDF165CF}</ProjectGuid>
+    <ProjectGuid>{E3ED6E4B-468F-4E58-B45D-641014A44B34}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Histogrammer</RootNamespace>
-    <AssemblyName>Histogrammer</AssemblyName>
+    <RootNamespace>SFNetworkOscVisualizer</RootNamespace>
+    <AssemblyName>SFNetworkOscVisualizer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,9 +31,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -49,16 +44,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Main.Designer.cs">
+      <DependentUpon>Main.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="Main.resx">
+      <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -68,7 +63,6 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -81,28 +75,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ilGrapher\ilGrapher.csproj">
-      <Project>{C7A3DB5F-61B8-4780-93F4-5C859AF9F332}</Project>
-      <Name>ilGrapher</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ilRandom\ilRandom.csproj">
-      <Project>{532a97fc-cdb1-4def-bb91-9a70461686f7}</Project>
-      <Name>ilRandom</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ilSerializer\ilSerializer.csproj">
-      <Project>{9f33d35f-993e-4238-ac2e-1ce8e2a2d950}</Project>
-      <Name>ilSerializer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Network\Network.csproj">
       <Project>{760075af-b019-48c8-9922-31bc2b78401b}</Project>
       <Name>Network</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SFNetworkDistributionCheck\SFNetworkDistributionCheck.csproj">
-      <Project>{7dbc1dea-4772-44fd-a336-0626dda3a76c}</Project>
-      <Name>SFNetworkDistributionCheck</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFNetworkOscillator\SFNetworkOscillator.csproj">
       <Project>{90455795-8f56-4afc-a11a-61b576d0b531}</Project>

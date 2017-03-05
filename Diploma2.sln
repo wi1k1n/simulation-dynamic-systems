@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Network", "Network\Network.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworksTest", "NetworksTest\NetworksTest.csproj", "{364187C4-02E2-4A4D-9B0B-4BAACE17D444}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Histogrammer", "Histogrammer\Histogrammer.csproj", "{DDA1CCE6-8A6F-49C6-9A43-7ABEDDF165CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFNetworkOscGrapher", "Histogrammer\SFNetworkOscGrapher.csproj", "{DDA1CCE6-8A6F-49C6-9A43-7ABEDDF165CF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFNetworkDistributionCheck", "SFNetworkDistributionCheck\SFNetworkDistributionCheck.csproj", "{7DBC1DEA-4772-44FD-A336-0626DDA3A76C}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ilRandom", "ilRandom\ilRandom.csproj", "{532A97FC-CDB1-4DEF-BB91-9A70461686F7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ilSerializer", "ilSerializer\ilSerializer.csproj", "{9F33D35F-993E-4238-AC2E-1CE8E2A2D950}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFNetworkOscVisualizer", "SFNetworkOscVisualizer\SFNetworkOscVisualizer.csproj", "{E3ED6E4B-468F-4E58-B45D-641014A44B34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -187,6 +189,18 @@ Global
 		{9F33D35F-993E-4238-AC2E-1CE8E2A2D950}.Release|x64.Build.0 = Release|Any CPU
 		{9F33D35F-993E-4238-AC2E-1CE8E2A2D950}.Release|x86.ActiveCfg = Release|Any CPU
 		{9F33D35F-993E-4238-AC2E-1CE8E2A2D950}.Release|x86.Build.0 = Release|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Debug|x64.Build.0 = Debug|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Debug|x86.Build.0 = Debug|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Release|x64.ActiveCfg = Release|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Release|x64.Build.0 = Release|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Release|x86.ActiveCfg = Release|Any CPU
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -206,5 +220,6 @@ Global
 		{D0B97B07-D68B-4F41-8BFB-4C0FDF19E53F} = {08D942A0-9BC2-4ECE-9569-CE41182E11FB}
 		{532A97FC-CDB1-4DEF-BB91-9A70461686F7} = {BDFB2DED-75A5-4FF8-BEF0-6DEFA3C77C78}
 		{9F33D35F-993E-4238-AC2E-1CE8E2A2D950} = {BDFB2DED-75A5-4FF8-BEF0-6DEFA3C77C78}
+		{E3ED6E4B-468F-4E58-B45D-641014A44B34} = {BBBCE026-8788-4DF7-BE08-E15D3456F1C9}
 	EndGlobalSection
 EndGlobal

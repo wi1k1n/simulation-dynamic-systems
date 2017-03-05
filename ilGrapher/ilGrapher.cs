@@ -351,12 +351,20 @@ namespace Diploma2
         }
         public void DrawLine(Color clr, PointF p1, PointF p2)
         {
-            if (capture) captureDraw.Add(new ilGraphCaptureDrawLine(clr, p1, p2));
+            DrawLine(clr, 1f, p1, p2);
+        }
+        public void DrawLine(Color clr, float width, float x1, float y1, float x2, float y2)
+        {
+            DrawLine(clr, width, new PointF(x1, y1), new PointF(x2, y2));
+        }
+        public void DrawLine(Color clr, float width, PointF p1, PointF p2)
+        {
+            if (capture) captureDraw.Add(new ilGraphCaptureDrawLine(clr, width, p1, p2));
             if (g == null) return;
             p1 = Local2Global(p1);
             p2 = Local2Global(p2);
             if (!IsGlobalOnScreen(p1) && !IsGlobalOnScreen(p2)) return;
-            g.DrawLine(new Pen(clr), p1, p2);
+            g.DrawLine(new Pen(clr, width), p1, p2);
         }
         public void DrawRectangle(Color clr, float x, float y, float width, float height)
         {
@@ -602,7 +610,7 @@ namespace Diploma2
     {
         public PointF P1 { get; set; }
         public PointF P2 { get; set; }
-        public ilGraphCaptureDrawLine(Color pen, PointF p1, PointF p2) : base(pen)
+        public ilGraphCaptureDrawLine(Color pen, float width, PointF p1, PointF p2) : base(pen)
         {
             P1 = p1;
             P2 = p2;

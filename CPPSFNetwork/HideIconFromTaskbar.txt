@@ -1,0 +1,20 @@
+
+#include <ShObjIdl.h>
+
+ITaskbarList *pTaskList = NULL;
+	HRESULT initRet = CoInitialize(NULL);
+	HRESULT createRet = CoCreateInstance(CLSID_TaskbarList,
+		NULL,
+		CLSCTX_INPROC_SERVER,
+		IID_ITaskbarList,
+		(LPVOID*)&pTaskList);
+
+	if (createRet == S_OK)
+	{
+
+		pTaskList->DeleteTab(GetConsoleWindow());
+
+		pTaskList->Release();
+	}
+
+	CoUninitialize();

@@ -174,7 +174,7 @@ void SFNetworkOscillator::SimulateDynamicStep() {
 	states.push_back(SFNetworkOscillatorState(time, phases));
 }
 
-void SFNetworkOscillator::Binarize(char* path, char version) {
+void SFNetworkOscillator::Binarize(const char* path, char version) {
 	switch (version)
 	{
 		case 1:
@@ -182,7 +182,7 @@ void SFNetworkOscillator::Binarize(char* path, char version) {
 		default: break;
 	}
 }
-void SFNetworkOscillator::Binarize_v1(char* path) {
+void SFNetworkOscillator::Binarize_v1(const char* path) {
 	std::ofstream ofile(path, std::ios::binary);
 	char version = 1;
 	ofile.write(&version, sizeof(char));

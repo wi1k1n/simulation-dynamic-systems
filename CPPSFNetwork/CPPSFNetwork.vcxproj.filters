@@ -46,5 +46,8 @@
     <Text Include="SFnetworkOscillatorDynamicCalculation.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="HideIconFromTaskbar.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

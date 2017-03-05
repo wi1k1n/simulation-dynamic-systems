@@ -9,6 +9,9 @@
 #include <functional>
 #include <random>
 #include <fstream>
+#include <thread>
+#include <Windows.h>
+#include <string>
 
 
 #define PI	3.1415926535897932384626433832795
@@ -25,33 +28,36 @@ double measureRuntime(const function<void()> f) {
 	return (clock() - start) / (double)CLOCKS_PER_SEC;
 }
 
+bool stop = false;
+void cli() {
+	while (!stop) {
+		int t;
+		cin >> t;
+		stop = t == 9;
+	}
+}
 void foo() {
 	double start_local = clock();
-	SFNetworkOscillator nw(75, 3, .65, 1, 10, -PI, PI, 0, 1, 0.01, 625);
+	SFNetworkOscillator nw(900, 3, .2, 1, 10, -PI, PI, 0, .1, .005, 625);
 	cout << "Network generated in " << clock() - start_local << "ms" << endl;
-	for (int i = 0; i < 2; i++) {
+	while(!stop) {
 		start_local = clock();
 		nw.SimulateDynamicStep();
 		cout << "Dynamic:\ttime: " << nw.time << "\t" << clock() - start_local << "ms" << endl;
 	}
-	nw.Binarize("network_50_3.bin", 1);
+	nw.Binarize(("network_900_3_.2_1_10_-pi_pi_0_.1_.005_625" + to_string(nw.states.size()) + ".bin").data(), 1);
 	cout << "Network successfully binarized. Press any key to resume." << endl;
-	int t;
-	cin >> t;
-	for (int i = 0; i < 5; i++) {
-		start_local = clock();
-		nw.SimulateDynamicStep();
-		cout << "Dynamic:\ttime: " << nw.time << "\t" << clock() - start_local << "ms" << endl;
-	}
-	cout << endl << "time: " << nw.time << endl;
-	for (double d : nw.phases)
-		cout << d << endl;
 }
 
 double start = clock();
 int main(int argc, char* argv) {
 	srand(start);
-	double runtime = measureRuntime(foo);
+	double runtime = measureRuntime([]()->void {
+		thread calculation(&foo);
+		thread cli(&cli);
+		cli.join();
+		calculation.join();
+	});
 	cout << endl << "Runtime: " << runtime << endl;
 	system("pause");
 	return 0;

@@ -1,6 +1,8 @@
 #include "RK4S.h"
 
 #include <vector>
+//#include <ctime>
+//#include <iostream>
 
 
 RK4SResult::RK4SResult(double t, const std::vector<double>& v)
@@ -29,10 +31,12 @@ RK4SResult RK4S::Solve(const std::vector<RK4SFunc>& funcs, double t_init, const 
 	double a = sixth;
 	while (t_current <= t_target)
 	{
+		//double start = clock();
 		for (int i = 1; i < 5; i++)
 			rk_rates_calc(funcs, t_current, vals_current, t_step, rates[i - 1], rates[i], koefs[i - 1]);
 		for (int i = 0; i < vals_init.size(); i++) vals_current[i] += sixth * (rates[1][i] + 2 * rates[2][i] + 2 * rates[3][i] + rates[4][i]);
 		t_current += t_step;
+		//std::cout << clock() - start << std::endl;
 	}
 	return RK4SResult(t_current, vals_current);
 }

@@ -33,6 +33,8 @@
             this.качествоToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.скоростьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.домойToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openSFNWOscToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ilGrapher1 = new Diploma2.ilGrapher();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -42,7 +44,9 @@
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.отрисовкаToolStripMenuItem,
-            this.домойToolStripMenuItem});
+            this.домойToolStripMenuItem,
+            this.openSFNWOscToolStripMenuItem,
+            this.settingsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1078, 28);
@@ -63,14 +67,14 @@
             this.качествоToolStripMenuItem.Checked = true;
             this.качествоToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.качествоToolStripMenuItem.Name = "качествоToolStripMenuItem";
-            this.качествоToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.качествоToolStripMenuItem.Size = new System.Drawing.Size(148, 26);
             this.качествоToolStripMenuItem.Text = "Качество";
             this.качествоToolStripMenuItem.Click += new System.EventHandler(this.качествоToolStripMenuItem_Click);
             // 
             // скоростьToolStripMenuItem
             // 
             this.скоростьToolStripMenuItem.Name = "скоростьToolStripMenuItem";
-            this.скоростьToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.скоростьToolStripMenuItem.Size = new System.Drawing.Size(148, 26);
             this.скоростьToolStripMenuItem.Text = "Скорость";
             this.скоростьToolStripMenuItem.Click += new System.EventHandler(this.скоростьToolStripMenuItem_Click);
             // 
@@ -80,6 +84,21 @@
             this.домойToolStripMenuItem.Size = new System.Drawing.Size(69, 24);
             this.домойToolStripMenuItem.Text = "Домой";
             this.домойToolStripMenuItem.Click += new System.EventHandler(this.домойToolStripMenuItem_Click);
+            // 
+            // openSFNWOscToolStripMenuItem
+            // 
+            this.openSFNWOscToolStripMenuItem.Name = "openSFNWOscToolStripMenuItem";
+            this.openSFNWOscToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.openSFNWOscToolStripMenuItem.Size = new System.Drawing.Size(112, 24);
+            this.openSFNWOscToolStripMenuItem.Text = "Открыть сеть";
+            this.openSFNWOscToolStripMenuItem.Click += new System.EventHandler(this.openSFNWOscToolStripMenuItem_Click);
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(96, 24);
+            this.settingsToolStripMenuItem.Text = "Настройки";
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // ilGrapher1
             // 
@@ -124,6 +143,8 @@
         private System.Windows.Forms.ToolStripMenuItem скоростьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem домойToolStripMenuItem;
         private ilGrapher ilGrapher1;
+        private System.Windows.Forms.ToolStripMenuItem openSFNWOscToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
     }
 }
 

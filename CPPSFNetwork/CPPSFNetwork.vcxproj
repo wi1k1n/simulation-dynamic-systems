@@ -153,6 +153,7 @@
     <ClInclude Include="SFNetwork.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="HideIconFromTaskbar.txt" />
     <Text Include="RK4S_Test_Functionality.txt" />
     <Text Include="SFnetworkOscillatorDynamicCalculation.txt" />
   </ItemGroup>

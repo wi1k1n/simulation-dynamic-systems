@@ -82,12 +82,12 @@ public:
 
 	void SimulateDynamicStep();
 
-	void Binarize(char* path, char version);
+	void Binarize(const char* path, char version);
 private:
 	std::vector<RK4SFunc> funcs;
 
 	void constructor(double str, double f_min, double f_max, double p_min, double p_max, double t_init, double t_step, double s_step);
 	void phasesNormalize();
 
-	void Binarize_v1(char* path);
+	void Binarize_v1(const char* path);
 };
