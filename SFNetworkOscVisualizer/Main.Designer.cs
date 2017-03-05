@@ -50,6 +50,7 @@
             // loadNetworkToolStripMenuItem
             // 
             this.loadNetworkToolStripMenuItem.Name = "loadNetworkToolStripMenuItem";
+            this.loadNetworkToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.loadNetworkToolStripMenuItem.Size = new System.Drawing.Size(112, 24);
             this.loadNetworkToolStripMenuItem.Text = "Открыть сеть";
             this.loadNetworkToolStripMenuItem.Click += new System.EventHandler(this.loadNetworkToolStripMenuItem_Click);
@@ -57,6 +58,7 @@
             // startToolStripMenuItem
             // 
             this.startToolStripMenuItem.Name = "startToolStripMenuItem";
+            this.startToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Space)));
             this.startToolStripMenuItem.Size = new System.Drawing.Size(59, 24);
             this.startToolStripMenuItem.Text = "Старт";
             this.startToolStripMenuItem.Click += new System.EventHandler(this.startToolStripMenuItem_Click);

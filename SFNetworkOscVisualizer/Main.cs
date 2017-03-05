@@ -16,11 +16,18 @@ namespace Diploma2
 
         SFNetworkOscillator nw = null;
 
+        RectangleF nwRect = new RectangleF(0, 0, 1, 1);
         List<Vertex> pts = new List<Vertex>();
         List<EdgeRef> edgs = new List<EdgeRef>();
 
-        Image graph = new Bitmap(400, 100);
+        Image graph = new Bitmap(1, 100);
         Point graphLocation = new Point(10, 10);
+        bool graphMoving = false;
+
+        int histCount = 200;
+        int histMax = int.MinValue;
+        List<List<int>> hist = new List<List<int>>();
+        Rectangle histRect = new Rectangle(10, 110, 850, 150);
 
         Timer timer1 = new Timer();
         bool isRunning = false;
@@ -31,56 +38,104 @@ namespace Diploma2
             InitializeComponent();
 
             graphLocation.Y += menuStrip1.Bottom;
+            histRect.Y += menuStrip1.Bottom;
         }
 
         private void Main_Load(object sender, EventArgs e)
         {
+            graph = new Bitmap(ClientRectangle.Width - graphLocation.X * 2, graph.Height);
+            nwRect.Size = new SizeF((Width - histRect.Right) / 2f, (Height - graphLocation.Y - graph.Height) / 2f);
+            nwRect.Location = new PointF(Width - nwRect.Width, Height - nwRect.Height);
+
             timer1.Interval = 100;
             timer1.Tick += (o, evt) =>
             {
+                if (graphMoving) return;
+                Invalidate();
+                stateCurrent++;
                 if (stateCurrent >= nw.States.Count)
                 {
+                    stateCurrent = nw.States.Count - 1;
                     timerUIControl(false);
                     return;
                 }
-                for (int i = 0; i < pts.Count; i++)
-                    pts[i].Color = Vertex.ColorFromHSV(nw.States[stateCurrent].Phases[i] * 180 / Math.PI, 1, 1);
-                Invalidate();
-                stateCurrent++;
             };
         }
         private void Main_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
-            
+
+            #region Drawing network
             Font f = new Font("Segoe UI", 8.0f);
             foreach (EdgeRef edg in edgs)
                 edg.Draw(g);
+
             for (int i = 0; i < pts.Count; i++)
             {
+                pts[i].Color = Vertex.ColorFromHSV(nw.States[stateCurrent].Phases[i] * 180 / Math.PI, 1, 1);
                 pts[i].Draw(g);
-                string s = "[" + i.ToString() + "]: " + nw.Nodes[pts[i].Id].ToString();
+                //string s = "[" + i.ToString() + "]: " + nw.Nodes[pts[i].Id].ToString();
+                string s = nw.Nodes[pts[i].Id].ToString();
                 SizeF size = g.MeasureString(s, f);
                 g.DrawString(s, f, Brushes.Black, pts[i].Location.X - size.Width / 2, pts[i].Location.Y - size.Height / 2);
             }
+            #endregion
 
+            #region Drawing statistics
             if (nw != null)
             {
+                //// Drawing macro-map
                 g.DrawImageUnscaled(graph, graphLocation);
-                float kX = (float)((graph.Width - 1) / (nw.States[nw.States.Count - 1].Time - nw.States[0].Time));
+                float graphKX = (float)((graph.Width - 1) / (nw.States[nw.States.Count - 1].Time - nw.States[0].Time));
                 g.DrawLine(
                     Pens.Black,
-                    (float)(graphLocation.X + nw.States[stateCurrent].Time * kX),
+                    (float)(graphLocation.X + nw.States[stateCurrent].Time * graphKX),
                     graphLocation.Y,
-                    (float)(graphLocation.X + nw.States[stateCurrent].Time * kX), graphLocation.Y + graph.Height
+                    (float)(graphLocation.X + nw.States[stateCurrent].Time * graphKX), graphLocation.Y + graph.Height
                 );
                 g.DrawRectangle(Pens.Black, new Rectangle(graphLocation, graph.Size));
+
+
+
+                //// Drawing histogram
+                float histKX = (histRect.Width - 1f) / histCount;
+                float histKY = (histRect.Height - 1f) / histMax;
+                for (int i = 0; i < hist[stateCurrent].Count; i++)
+                    g.FillRectangle(
+                        Brushes.Purple,
+                        histRect.X + i * histKX,
+                        histRect.Y + histRect.Height - hist[stateCurrent][i] * histKY,
+                        histKX,
+                        hist[stateCurrent][i] * histKY
+                    );
+                g.DrawRectangle(Pens.Black, histRect);
             }
+            #endregion
         }
 
         private void Main_MouseDown(object sender, MouseEventArgs e)
         {
+            #region Interacting with graph
+            if (nw != null)
+            {
+                if (e.X >= graphLocation.X && e.X < graphLocation.X + graph.Width
+                    && e.Y >= graphLocation.Y && e.Y < graphLocation.Y + graph.Height)
+                {
+                    graphMoving = true;
+                    double t = (double)(e.X - graphLocation.X) / graph.Width * (nw.States.Last().Time - nw.States.First().Time);
+                    for (int i = 1; i < nw.States.Count; i++)
+                        if (nw.States[i].Time > t)
+                        {
+                            stateCurrent = (Math.Abs(t - nw.States[i - 1].Time) > Math.Abs(t - nw.States[i].Time)) ? i : (i - 1);
+                            break;
+                        }
+                    Invalidate();
+                    return;
+                }
+            }
+            #endregion
+
             foreach (Vertex v in pts)
                 if (v.isInside(e.Location))
                 {
@@ -91,6 +146,22 @@ namespace Diploma2
         private void Main_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.None) return;
+
+            #region Interacting with graph
+            if (graphMoving)
+            {
+                double t = (double)(e.X - graphLocation.X) / graph.Width * (nw.States.Last().Time - nw.States.First().Time);
+                for (int i = 1; i < nw.States.Count; i++)
+                    if (nw.States[i].Time > t)
+                    {
+                        stateCurrent = (Math.Abs(t - nw.States[i - 1].Time) > Math.Abs(t - nw.States[i].Time)) ? i : (i - 1);
+                        break;
+                    }
+            }
+            if (stateCurrent < 0) stateCurrent = 0;
+            if (stateCurrent >= nw.States.Count) stateCurrent = nw.States.Count - 1;
+            #endregion
+
             foreach (Vertex v in pts)
             {
                 if (v.IsMoving)
@@ -105,6 +176,7 @@ namespace Diploma2
         {
             foreach (Vertex v in pts)
                 v.IsMoving = false;
+            graphMoving = false;
         }
 
         private void loadNetworkToolStripMenuItem_Click(object sender, EventArgs e)
@@ -116,6 +188,7 @@ namespace Diploma2
                     nw = SFNetworkOscillator.Debinarize(ofd.FileName);
                     VisualizeNetwork();
                     InitializeMacro();
+                    InitializeHist();
                 }
                 catch (Exception ex) { MessageBox.Show("Error occured while loading file: " + ex.Message, "Loading error"); }
             }
@@ -123,13 +196,12 @@ namespace Diploma2
         private void VisualizeNetwork()
         {
             // Radius sizes of the whole network
-            float min_rad = 40, max_rad = 15;
+            float min_rad = 40;
             // Vertex radiuses
-            float max_size = 32, min_size = 8;
+            float max_size = 26, min_size = 8;
 
             int max_degree = nw.Nodes[0], min_degree = nw.Nodes[0];
-
-            max_rad = (ClientRectangle.Height - menuStrip1.Height) / 2 * 0.9f - min_rad;
+            
             foreach (var d in nw.Nodes)
             {
                 if (max_degree < d.Value)
@@ -138,7 +210,7 @@ namespace Diploma2
                 if (min_degree > d.Value)
                     min_degree = d.Value;
             }
-            float it = (max_rad - min_rad) / (max_degree - min_degree);
+            float it = (Math.Min(nwRect.Width * .6f, nwRect.Height * .6f) - min_rad) / (max_degree - min_degree);
             float it_size = (max_size - min_size) / (max_degree - min_degree);
 
             pts = new List<Vertex>();
@@ -154,8 +226,8 @@ namespace Diploma2
                 int wtchdg = 0;
                 do
                 {
-                    int x = (int)(ClientRectangle.Width / 2 + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Cos(a)),
-                        y = (int)((ClientRectangle.Height + menuStrip1.Height) / 2 + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Sin(a));
+                    int x = (int)(nwRect.X + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Cos(a)),
+                        y = (int)(nwRect.Y + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Sin(a));
                     bool overlap = false;
                     for (int j = 0; j < i; j++)
                     {
@@ -216,6 +288,18 @@ namespace Diploma2
                 (graph.Height - 1) / (macroCoherencyMinMax.Y - macroCoherencyMinMax.X)
             );
 
+            for (int i = 1; i < macroSumSignal.Count; i++)
+            {
+                byte[] clr = BitConverter.GetBytes(BackColor.ToArgb());
+                clr[1] -= 8; clr[2] -= 8; clr[3] -= 8;
+                g.DrawLine(new Pen(Color.FromArgb(BitConverter.ToInt32(clr, 0))),
+                    (float)(macroSumSignal[i].Key + nw.States[0].Time) * kX,
+                    0,
+                    (float)(macroSumSignal[i].Key + nw.States[0].Time) * kX,
+                    graph.Height
+                );
+            }
+
             // x-axis
             g.DrawLine(Pens.Pink,
                 0,
@@ -223,7 +307,6 @@ namespace Diploma2
                 (graph.Width - 1),
                 (graph.Height - 1) + macroSumSignalMinMax.X * kY.X
             );
-
             for (int i = 1; i < macroSumSignal.Count; i++)
             {
                 g.DrawLine(
@@ -245,10 +328,29 @@ namespace Diploma2
                 );
             }
         }
+        private void InitializeHist()
+        {
+            hist = new List<List<int>>();
+            foreach (SFNetworkOscillatorState d in nw.States)
+            {
+                List<int> res = new List<int>(Enumerable.Repeat(0, histCount));
+                double w = 2 * Math.PI / res.Count;
+                for (int i = 0; i < d.Phases.Length; i++)
+                {
+                    double v = d.Phases[i] < 0 ? d.Phases[i] + 2 * Math.PI : d.Phases[i];
+                    int j = (int)(v * res.Count / (2 * Math.PI));
+                    res[j]++;
+                    if (res[j] > histMax) histMax = res[j];
+                }
+                hist.Add(res);
+            }
+        }
 
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (nw == null) return;
+            if (stateCurrent >= nw.States.Count) stateCurrent = 0;
             timerUIControl(!isRunning);
             Invalidate();
         }
