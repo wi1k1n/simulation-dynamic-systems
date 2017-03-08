@@ -1,6 +1,4 @@
 #include "SFNetwork.h"
-#include "RK4S.h"
-#include "ilRand.h"
 
 #include <iostream>
 #include <vector>
@@ -18,7 +16,7 @@
 
 
 using namespace std;
-
+using namespace Diploma2;
 
 
 
@@ -38,14 +36,14 @@ void cli() {
 }
 void foo() {
 	double start_local = clock();
-	SFNetworkOscillator nw(900, 3, .2, 1, 10, -PI, PI, 0, .1, .005, 625);
+	SFNetworkOscillator nw(75, 3, .4, 1, 10, -PI, PI, 0, .1, .005, 626);
 	cout << "Network generated in " << clock() - start_local << "ms" << endl;
 	while(!stop) {
 		start_local = clock();
 		nw.SimulateDynamicStep();
 		cout << "Dynamic:\ttime: " << nw.time << "\t" << clock() - start_local << "ms" << endl;
 	}
-	nw.Binarize(("network_900_3_.2_1_10_-pi_pi_0_.1_.005_625" + to_string(nw.states.size()) + ".bin").data(), 1);
+	nw.Binarize(("network_75_3_.4_1_10_-pi_pi_0_.1_.005_626_" + to_string(nw.states.size()) + ".bin").data(), 1);
 	cout << "Network successfully binarized. Press any key to resume." << endl;
 }
 

@@ -20,8 +20,8 @@ namespace Diploma2
         List<Vertex> pts = new List<Vertex>();
         List<EdgeRef> edgs = new List<EdgeRef>();
 
-        Image graph = new Bitmap(1, 100);
-        Point graphLocation = new Point(10, 10);
+        Image graph = new Bitmap(1, 1);
+        Rectangle graphRect = new Rectangle(10, 10, 1, 100);
         bool graphMoving = false;
 
         int histCount = 200;
@@ -37,14 +37,14 @@ namespace Diploma2
         {
             InitializeComponent();
 
-            graphLocation.Y += menuStrip1.Bottom;
+            graphRect.Y += menuStrip1.Bottom;
             histRect.Y += menuStrip1.Bottom;
         }
 
         private void Main_Load(object sender, EventArgs e)
         {
-            graph = new Bitmap(ClientRectangle.Width - graphLocation.X * 2, graph.Height);
-            nwRect.Size = new SizeF((Width - histRect.Right) / 2f, (Height - graphLocation.Y - graph.Height) / 2f);
+            graphRect.Width = ClientRectangle.Width - graphRect.X * 2;
+            nwRect.Size = new SizeF((Width - histRect.Right) / 2f, (Height - graphRect.Y - graph.Height) / 2f);
             nwRect.Location = new PointF(Width - nwRect.Width, Height - nwRect.Height);
 
             timer1.Interval = 100;
@@ -68,17 +68,23 @@ namespace Diploma2
 
             #region Drawing network
             Font f = new Font("Segoe UI", 8.0f);
-            foreach (EdgeRef edg in edgs)
-                edg.Draw(g);
-
-            for (int i = 0; i < pts.Count; i++)
+            lock (edgs)
             {
-                pts[i].Color = Vertex.ColorFromHSV(nw.States[stateCurrent].Phases[i] * 180 / Math.PI, 1, 1);
-                pts[i].Draw(g);
-                //string s = "[" + i.ToString() + "]: " + nw.Nodes[pts[i].Id].ToString();
-                string s = nw.Nodes[pts[i].Id].ToString();
-                SizeF size = g.MeasureString(s, f);
-                g.DrawString(s, f, Brushes.Black, pts[i].Location.X - size.Width / 2, pts[i].Location.Y - size.Height / 2);
+                foreach (EdgeRef edg in edgs)
+                    edg.Draw(g);
+            }
+
+            lock (pts)
+            {
+                for (int i = 0; i < pts.Count; i++)
+                {
+                    pts[i].Color = Vertex.ColorFromHSV(nw.States[stateCurrent].Phases[i] * 180 / Math.PI, 1, 1);
+                    pts[i].Draw(g);
+                    //string s = "[" + i.ToString() + "]: " + nw.Nodes[pts[i].Id].ToString();
+                    string s = nw.Nodes[pts[i].Id].ToString();
+                    SizeF size = g.MeasureString(s, f);
+                    g.DrawString(s, f, Brushes.Black, pts[i].Location.X - size.Width / 2, pts[i].Location.Y - size.Height / 2);
+                }
             }
             #endregion
 
@@ -86,15 +92,16 @@ namespace Diploma2
             if (nw != null)
             {
                 //// Drawing macro-map
-                g.DrawImageUnscaled(graph, graphLocation);
+                g.DrawImageUnscaled(graph, graphRect);
                 float graphKX = (float)((graph.Width - 1) / (nw.States[nw.States.Count - 1].Time - nw.States[0].Time));
                 g.DrawLine(
                     Pens.Black,
-                    (float)(graphLocation.X + nw.States[stateCurrent].Time * graphKX),
-                    graphLocation.Y,
-                    (float)(graphLocation.X + nw.States[stateCurrent].Time * graphKX), graphLocation.Y + graph.Height
+                    (float)(graphRect.X + nw.States[stateCurrent].Time * graphKX),
+                    graphRect.Y,
+                    (float)(graphRect.X + nw.States[stateCurrent].Time * graphKX),
+                    graphRect.Y + graph.Height
                 );
-                g.DrawRectangle(Pens.Black, new Rectangle(graphLocation, graph.Size));
+                g.DrawRectangle(Pens.Black, graphRect);
 
 
 
@@ -119,11 +126,11 @@ namespace Diploma2
             #region Interacting with graph
             if (nw != null)
             {
-                if (e.X >= graphLocation.X && e.X < graphLocation.X + graph.Width
-                    && e.Y >= graphLocation.Y && e.Y < graphLocation.Y + graph.Height)
+                if (e.X >= graphRect.Left && e.X < graphRect.Right
+                    && e.Y >= graphRect.Top && e.Y < graphRect.Bottom)
                 {
                     graphMoving = true;
-                    double t = (double)(e.X - graphLocation.X) / graph.Width * (nw.States.Last().Time - nw.States.First().Time);
+                    double t = (double)(e.X - graphRect.X) / graph.Width * (nw.States.Last().Time - nw.States.First().Time);
                     for (int i = 1; i < nw.States.Count; i++)
                         if (nw.States[i].Time > t)
                         {
@@ -150,7 +157,7 @@ namespace Diploma2
             #region Interacting with graph
             if (graphMoving)
             {
-                double t = (double)(e.X - graphLocation.X) / graph.Width * (nw.States.Last().Time - nw.States.First().Time);
+                double t = (double)(e.X - graphRect.X) / graph.Width * (nw.States.Last().Time - nw.States.First().Time);
                 for (int i = 1; i < nw.States.Count; i++)
                     if (nw.States[i].Time > t)
                     {
@@ -218,38 +225,43 @@ namespace Diploma2
 
             Random rnd = new Random();
             double a = 0;
-            for (int i = 0; i < nw.Nodes.Count; i++)
+            lock (pts)
             {
-                a = rnd.NextDouble() * 360;
-                bool iterate = true;
-                float radius = nw.Nodes[i] * it_size + min_size;
-                int wtchdg = 0;
-                do
+                for (int i = 0; i < nw.Nodes.Count; i++)
                 {
-                    int x = (int)(nwRect.X + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Cos(a)),
-                        y = (int)(nwRect.Y + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Sin(a));
-                    bool overlap = false;
-                    for (int j = 0; j < i; j++)
+                    a = rnd.NextDouble() * 360;
+                    bool iterate = true;
+                    float radius = nw.Nodes[i] * it_size + min_size;
+                    int wtchdg = 0;
+                    do
                     {
-                        if (Math.Sqrt(Math.Pow(pts[j].Location.X - x, 2) + Math.Pow(pts[j].Location.Y - y, 2)) <= pts[j].Radius + radius) { overlap = true; break; }
-                    }
-                    if (!overlap || ++wtchdg > 1000)
-                    {
-                        pts.Add(new Vertex(i, new Point(x, y), nw.Nodes[i], nw.Nodes[i] * it_size + min_size));
-                        iterate = false;
-                    }
-                } while (iterate);
+                        int x = (int)(nwRect.X + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Cos(a)),
+                            y = (int)(nwRect.Y + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Sin(a));
+                        bool overlap = false;
+                        for (int j = 0; j < i; j++)
+                        {
+                            if (Math.Sqrt(Math.Pow(pts[j].Location.X - x, 2) + Math.Pow(pts[j].Location.Y - y, 2)) <= pts[j].Radius + radius) { overlap = true; break; }
+                        }
+                        if (!overlap || ++wtchdg > 1000)
+                        {
+                            pts.Add(new Vertex(i, new Point(x, y), nw.Nodes[i], nw.Nodes[i] * it_size + min_size));
+                            iterate = false;
+                        }
+                    } while (iterate);
+                }
             }
-            for (int i = 0; i < nw.Edges.Count; i++)
+            lock (edgs)
             {
-                edgs.Add(new EdgeRef(pts[nw.Edges[i].From], pts[nw.Edges[i].To], nw.Edges[i].Weight, 2, false));
-                edgs[i].Color = Color.Black;
+                for (int i = 0; i < nw.Edges.Count; i++)
+                {
+                    edgs.Add(new EdgeRef(pts[nw.Edges[i].From], pts[nw.Edges[i].To], nw.Edges[i].Weight, 2, false));
+                    edgs[i].Color = Color.Black;
+                }
             }
             Invalidate();
         }
         private void InitializeMacro()
         {
-
             List<KeyValuePair<double, double>> macroSumSignal = new List<KeyValuePair<double, double>>();
             List<KeyValuePair<double, double>> macroCoherency = new List<KeyValuePair<double, double>>();
             PointF macroSumSignalMinMax = new PointF(float.PositiveInfinity, float.NegativeInfinity);
@@ -278,6 +290,7 @@ namespace Diploma2
                 macroCoherency.Add(new KeyValuePair<double, double>(d.Time, sumCoh));
             }
 
+            graph = new Bitmap(graphRect.Width, graphRect.Height);
             Graphics g = Graphics.FromImage(graph);
             // kW - normalize multiplier of X-axis for both macroSumSignal & macroCoherency
             float kX = (float)((graph.Width - 1) / (nw.States[nw.States.Count - 1].Time - nw.States[0].Time));

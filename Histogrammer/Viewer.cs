@@ -69,6 +69,14 @@ namespace Diploma2
                     (float)macroSumSignal[i].Key * macroSumSignalK.X,
                     (float)macroSumSignal[i].Value * macroSumSignalK.Y
                 );
+                ilGrapher1.FillCirclePoint(
+                    Color.Red,
+                    2,
+                    new PointF(
+                        (float)macroSumSignal[i].Key * macroSumSignalK.X,
+                        (float)macroSumSignal[i].Value * macroSumSignalK.Y
+                    )
+                );
             }
 
             for (int i = 1; i < macroCoherency.Count; i++)
@@ -80,6 +88,14 @@ namespace Diploma2
                     (float)macroCoherency[i - 1].Value * macroCoherencyK.Y,
                     (float)macroCoherency[i].Key * macroCoherencyK.X,
                     (float)macroCoherency[i].Value * macroCoherencyK.Y
+                );
+                ilGrapher1.FillCirclePoint(
+                    Color.Blue,
+                    2,
+                    new PointF(
+                        (float)macroCoherency[i].Key * macroCoherencyK.X,
+                        (float)macroCoherency[i].Value * macroCoherencyK.Y
+                    )
                 );
             }
         }

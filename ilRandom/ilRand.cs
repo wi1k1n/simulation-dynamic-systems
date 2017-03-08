@@ -9,8 +9,9 @@ namespace Diploma2
     [Serializable]
     public class ilRand
     {
-        private const ulong m = 1442695040888963407;
-        private const ulong a = 6364136223846793005;
+        private const ulong m = 281474976710655;
+        private const ulong a = 25214903917;
+        private const ulong c = 11;
 
         private ulong x = 0;
 
@@ -29,7 +30,7 @@ namespace Diploma2
         public ilRand(int seed, ulong x)
         {
             Seed = seed;
-            x = x;
+            this.x = x;
         }
 
         public void ChangeSeed()
@@ -76,7 +77,7 @@ namespace Diploma2
 
         private ulong next()
         {
-            x = ((x * a) % m);
+            x = ((x * a + c) % m);
             return x;
         }
     }

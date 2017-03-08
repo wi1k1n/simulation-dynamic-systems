@@ -233,7 +233,6 @@ namespace Diploma2
                 }
             }
             catch (Exception e) { return null; }
-            return null;
         }
     }
 }

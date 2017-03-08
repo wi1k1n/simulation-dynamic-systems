@@ -73,7 +73,7 @@ namespace Diploma2
             for (int i = 0; i < l; i++)
             {
                 nodeMarker[i] = globalNode;
-                if (lcd[i] > -1 && ++kCnt == 3)
+                if (lcd[i] > -1 && ++kCnt == edge_multiplier)
                 {
                     globalNode++;
                     kCnt = 0;

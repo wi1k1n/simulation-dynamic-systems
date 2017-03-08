@@ -29,11 +29,22 @@ namespace Diploma2
             double[] vals_current = new double[vals_init.Length];
             vals_init.CopyTo(vals_current, 0);
             double[][] rates = new double[5][];
-            for (int i = 0; i < 5; i++) rates[i] = new double[vals_init.Length];
+            for (int i = 0; i < 5; i++)
+                rates[i] = new double[vals_init.Length];
             while (t_current <= t_target)
             {
-                for (int i = 1; i < 5; i++) ratesCalc2(funcs, t_current, vals_current.ToArray(), t_step, rates[i - 1], rates[i], koefs[i - 1]);
-                for (int i = 0; i < vals_init.Length; i++) vals_current[i] += sixth * (rates[1][i] + 2 * rates[2][i] + 2 * rates[3][i] + rates[4][i]);
+                for (int i = 1; i < 5; i++)
+                    ratesCalc2(
+                        funcs,
+                        t_current,
+                        vals_current.ToArray(),
+                        t_step,
+                        rates[i - 1],
+                        rates[i],
+                        koefs[i - 1]
+                    );
+                for (int i = 0; i < vals_init.Length; i++)
+                    vals_current[i] += sixth * (rates[1][i] + 2 * rates[2][i] + 2 * rates[3][i] + rates[4][i]);
                 t_current += t_step;
             }
             return new RK4SResult(t_current, vals_current);

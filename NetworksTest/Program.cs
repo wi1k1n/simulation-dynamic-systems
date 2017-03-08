@@ -20,7 +20,12 @@ namespace Diploma2
         static double e(double x) { return Math.Exp(x); }
         static void Main(string[] args)
         {
-            RegistryKey rk = Registry.CurrentUser.CreateSubKey("SOFTWARE\\Ilyko\\Diploma2\\CSharp\\NetworksTest");
+            SFNetworkOscillator nw = new SFNetworkOscillator(75, 3, 0.3, 1, 10, -Math.PI, Math.PI, 0, 0.1, 0.005, 626);
+            for (int i = 0; i < 300; i++)
+            {
+                nw.SimulateDynamicStep();
+            }
+            nw.Serialize("network_check_coding_mistake");
 
         }
         static void Serialize(string path, params object[] obj)

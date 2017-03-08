@@ -18,36 +18,5 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SFNetwork.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RK4S.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ilRand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="SFNetwork.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RK4S.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ilRand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="RK4S_Test_Functionality.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="SFnetworkOscillatorDynamicCalculation.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="HideIconFromTaskbar.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
   </ItemGroup>
 </Project>

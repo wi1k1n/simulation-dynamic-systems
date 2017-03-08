@@ -1,0 +1,30 @@
+﻿
+Stopwatch sw = new Stopwatch();
+
+Random rnd = new Random();
+int len = 10000;
+double min = int.MinValue;
+double max = int.MaxValue;
+
+double[] il = new double[len];
+double[] rl = new double[len];
+int s = rnd.Next();
+ilRand ir = new ilRand(s);
+Random rr = new Random(s);
+sw.Restart();
+for (int j = 0; j < 1e8; j++)
+{
+    double r = ir.NextDouble(min, max);
+    il[(int)((r - min) / (max - min) * len)]++;
+    r = rr.NextDouble() * (max - min) + min;
+    rl[(int)((r - min) / (max - min) * len)]++;
+}
+sw.Stop();
+Console.WriteLine(sw.Elapsed);
+
+string res = "";
+for (int j = 0; j < len; j++)
+    res += il[j] + "\t" + rl[j] + Environment.NewLine;
+File.WriteAllText("rnd_result.txt", res);
+
+return;
