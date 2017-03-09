@@ -21,12 +21,19 @@ namespace Diploma2
         static void Main(string[] args)
         {
             SFNetworkOscillator nw = new SFNetworkOscillator(75, 3, 0.3, 1, 10, -Math.PI, Math.PI, 0, 0.1, 0.005, 626);
+            Stopwatch sw = new Stopwatch();
             for (int i = 0; i < 300; i++)
             {
+                sw.Restart();
                 nw.SimulateDynamicStep();
+                Console.WriteLine(sw.ElapsedMilliseconds);
             }
-            nw.Serialize("network_check_coding_mistake");
-
+            nw.Serialize("cs_network_dynamics_check");
+            return;
+            string s = "";
+            for (int i = 0; i < nw.Phases.Length; i++)
+                s += nw.Phases[i] + "\n";
+            File.WriteAllText("cs_network_check_dynamics", s);
         }
         static void Serialize(string path, params object[] obj)
         {

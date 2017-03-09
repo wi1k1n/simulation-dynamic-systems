@@ -40,12 +40,6 @@ int fileExists(char * file)
 	return found;
 }
 
-double measureRuntime(const function<void()> f) {
-	clock_t start(clock());
-	f();
-	return (clock() - start) / (double)CLOCKS_PER_SEC;
-}
-
 bool stop = false;
 bool binarized = false;
 void cli() {
@@ -128,15 +122,7 @@ void foo(SFNetworkOscillator &nw, string &file_name) {
 double start = clock();
 
 int main(int argc, char** argv) {
-	/*SFNetworkOscillator ntw = SFNetworkOscillator(50, 3, 0.5, 1, 10, -PI, PI, 0, 0.1, 0.05, 147);
-	ntw.SimulateDynamicStep();
-	ntw.SimulateDynamicStep();
-	ntw.SimulateDynamicStep();
-	ntw.SimulateDynamicStep();
-	ntw.SimulateDynamicStep();
-	cout << ntw.multiplier;
 
-	return 0;*/
 	if (argc < 7 && argc != 2) {
 		cout << "Argument list:\n\tnode_count\n\tmlt\n\tlambda\n\ttime_step\n\tsolve_step\n\trnd_seed\n\tfilename" << endl;
 		return 0;
@@ -152,13 +138,13 @@ int main(int argc, char** argv) {
 		nw.initialize(argv[1]);
 	}
 	else {
-
-		double node_count = atof(argv[1]),
-			mlt = atof(argv[2]),
-			lambda = atof(argv[3]),
+		
+		int node_count= atof(argv[1]),
+			mlt= atof(argv[2]),
+			seed= atof(argv[6]);
+		double lambda = atof(argv[3]),
 			time_step = atof(argv[4]),
-			solve_step = atof(argv[5]),
-			seed = atof(argv[6]);
+			solve_step = atof(argv[5]);
 
 		nw.initialize(node_count, mlt, lambda, 1, 10, -PI, PI, 0, time_step, solve_step, seed);
 	}
@@ -169,17 +155,12 @@ int main(int argc, char** argv) {
 	string file_name = network_name(nw) + ".bin";
 	if (argc > 7) file_name = argv[7];
 
-	double runtime = measureRuntime([nw, file_name](){
+	thread calculation(&foo, ref(nw), file_name);
+	thread cli(&cli);
+	cli.join();
+	calculation.join();
 
-
-		thread calculation(&foo, nw, file_name);
-		thread cli(&cli);
-		cli.join();
-		calculation.join();
-
-	});
-
-	cout << endl << "Runtime: " << runtime << endl;
+	cout << endl << "Runtime: " << clock() - start << endl;
 	system("pause");
 	return 0;
 }

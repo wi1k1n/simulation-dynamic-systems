@@ -78,7 +78,9 @@ namespace Diploma2
             {
                 for (int i = 0; i < pts.Count; i++)
                 {
-                    pts[i].Color = Vertex.ColorFromHSV(nw.States[stateCurrent].Phases[i] * 180 / Math.PI, 1, 1);
+                    double phase = nw.States[stateCurrent].Phases[i];
+                    phase = phase >= 0 ? phase : Math.PI * 2 - phase;
+                    pts[i].Color = Vertex.ColorFromHSV(phase * 180 / Math.PI, 1, 1);
                     pts[i].Draw(g);
                     //string s = "[" + i.ToString() + "]: " + nw.Nodes[pts[i].Id].ToString();
                     string s = nw.Nodes[pts[i].Id].ToString();
@@ -220,13 +222,13 @@ namespace Diploma2
             float it = (Math.Min(nwRect.Width * .7f, nwRect.Height * .7f) - min_rad) / (max_degree - min_degree);
             float it_size = (max_size - min_size) / (max_degree - min_degree);
 
-            pts = new List<Vertex>();
             edgs = new List<EdgeRef>();
 
             Random rnd = new Random();
             double a = 0;
             lock (pts)
             {
+                pts = new List<Vertex>();
                 for (int i = 0; i < nw.Nodes.Count; i++)
                 {
                     a = rnd.NextDouble() * 360;

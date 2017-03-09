@@ -210,7 +210,10 @@ namespace Diploma2 {
 
 	void SFNetworkOscillator::phasesNormalize() {
 		for (int i = 0; i < phases.size(); i++)
+		{
 			phases[i] = phases[i] - (int)(phases[i] / PI2) * PI2;
+			if (phases[i] < 0) phases[i] = PI2 - phases[i];
+		}
 	}
 	void SFNetworkOscillator::SimulateDynamicStep() {
 		RK4SResult result = RK4S::Solve(funcs, time, phases, time + time_step, solve_step);
