@@ -68,25 +68,19 @@ namespace Diploma2
 
             #region Drawing network
             Font f = new Font("Segoe UI", 8.0f);
-            lock (edgs)
-            {
-                foreach (EdgeRef edg in edgs)
-                    edg.Draw(g);
-            }
+            foreach (EdgeRef edg in edgs)
+                edg.Draw(g);
 
-            lock (pts)
+            for (int i = 0; i < pts.Count; i++)
             {
-                for (int i = 0; i < pts.Count; i++)
-                {
-                    double phase = nw.States[stateCurrent].Phases[i];
-                    phase = phase >= 0 ? phase : Math.PI * 2 - phase;
-                    pts[i].Color = Vertex.ColorFromHSV(phase * 180 / Math.PI, 1, 1);
-                    pts[i].Draw(g);
-                    //string s = "[" + i.ToString() + "]: " + nw.Nodes[pts[i].Id].ToString();
-                    string s = nw.Nodes[pts[i].Id].ToString();
-                    SizeF size = g.MeasureString(s, f);
-                    g.DrawString(s, f, Brushes.Black, pts[i].Location.X - size.Width / 2, pts[i].Location.Y - size.Height / 2);
-                }
+                double phase = nw.States[stateCurrent].Phases[i];
+                phase = phase >= 0 ? phase : Math.PI * 2 - phase;
+                pts[i].Color = Vertex.ColorFromHSV(phase * 180 / Math.PI, 1, 1);
+                pts[i].Draw(g);
+                //string s = "[" + i.ToString() + "]: " + nw.Nodes[pts[i].Id].ToString();
+                string s = nw.Nodes[pts[i].Id].ToString();
+                SizeF size = g.MeasureString(s, f);
+                g.DrawString(s, f, Brushes.Black, pts[i].Location.X - size.Width / 2, pts[i].Location.Y - size.Height / 2);
             }
             #endregion
 
@@ -210,7 +204,7 @@ namespace Diploma2
             float max_size = 26, min_size = 8;
 
             int max_degree = nw.Nodes[0], min_degree = nw.Nodes[0];
-            
+
             foreach (var d in nw.Nodes)
             {
                 if (max_degree < d.Value)
@@ -222,43 +216,38 @@ namespace Diploma2
             float it = (Math.Min(nwRect.Width * .7f, nwRect.Height * .7f) - min_rad) / (max_degree - min_degree);
             float it_size = (max_size - min_size) / (max_degree - min_degree);
 
+            pts = new List<Vertex>();
             edgs = new List<EdgeRef>();
 
             Random rnd = new Random();
             double a = 0;
-            lock (pts)
+
+            for (int i = 0; i < nw.Nodes.Count; i++)
             {
-                pts = new List<Vertex>();
-                for (int i = 0; i < nw.Nodes.Count; i++)
+                a = rnd.NextDouble() * 360;
+                bool iterate = true;
+                float radius = nw.Nodes[i] * it_size + min_size;
+                int wtchdg = 0;
+                do
                 {
-                    a = rnd.NextDouble() * 360;
-                    bool iterate = true;
-                    float radius = nw.Nodes[i] * it_size + min_size;
-                    int wtchdg = 0;
-                    do
+                    int x = (int)(nwRect.X + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Cos(a)),
+                        y = (int)(nwRect.Y + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Sin(a));
+                    bool overlap = false;
+                    for (int j = 0; j < i; j++)
                     {
-                        int x = (int)(nwRect.X + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Cos(a)),
-                            y = (int)(nwRect.Y + ((max_degree - nw.Nodes[i]) * it * (rnd.NextDouble() * 0.4 + 0.8) + min_rad) * Math.Sin(a));
-                        bool overlap = false;
-                        for (int j = 0; j < i; j++)
-                        {
-                            if (Math.Sqrt(Math.Pow(pts[j].Location.X - x, 2) + Math.Pow(pts[j].Location.Y - y, 2)) <= pts[j].Radius + radius) { overlap = true; break; }
-                        }
-                        if (!overlap || ++wtchdg > 1000)
-                        {
-                            pts.Add(new Vertex(i, new Point(x, y), nw.Nodes[i], nw.Nodes[i] * it_size + min_size));
-                            iterate = false;
-                        }
-                    } while (iterate);
-                }
+                        if (Math.Sqrt(Math.Pow(pts[j].Location.X - x, 2) + Math.Pow(pts[j].Location.Y - y, 2)) <= pts[j].Radius + radius) { overlap = true; break; }
+                    }
+                    if (!overlap || ++wtchdg > 1000)
+                    {
+                        pts.Add(new Vertex(i, new Point(x, y), nw.Nodes[i], nw.Nodes[i] * it_size + min_size));
+                        iterate = false;
+                    }
+                } while (iterate);
             }
-            lock (edgs)
+            for (int i = 0; i < nw.Edges.Count; i++)
             {
-                for (int i = 0; i < nw.Edges.Count; i++)
-                {
-                    edgs.Add(new EdgeRef(pts[nw.Edges[i].From], pts[nw.Edges[i].To], nw.Edges[i].Weight, 2, false));
-                    edgs[i].Color = Color.Black;
-                }
+                edgs.Add(new EdgeRef(pts[nw.Edges[i].From], pts[nw.Edges[i].To], nw.Edges[i].Weight, 2, false));
+                edgs[i].Color = Color.Black;
             }
             Invalidate();
         }
@@ -352,7 +341,7 @@ namespace Diploma2
                 double w = 2 * Math.PI / res.Count;
                 for (int i = 0; i < d.Phases.Length; i++)
                 {
-                    double v = d.Phases[i] < 0 ? d.Phases[i] + 2 * Math.PI : d.Phases[i];
+                    double v = d.Phases[i] + (d.Phases[i] > 0 ? 0 : 2 * Math.PI);
                     int j = (int)(v * res.Count / (2 * Math.PI));
                     res[j]++;
                     if (res[j] > histMax) histMax = res[j];

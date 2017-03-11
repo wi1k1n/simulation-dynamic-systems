@@ -40,13 +40,13 @@ int fileExists(char * file)
 	return found;
 }
 
-bool stop = false;
-bool binarized = false;
+bool stop_current_execution = false;
+bool cli_end_flag = false;
 void cli() {
-	while (!binarized) {
+	while (!cli_end_flag) {
 		string line;
 		getline(cin, line);
-		stop = line == "stop";
+		stop_current_execution = line == "stop";
 	}
 }
 
@@ -100,14 +100,14 @@ void foo(SFNetworkOscillator &nw, string &file_name) {
 	cout << "Network generated in " << clock() - start_local << "ms" << endl;
 
 	long binary_timer = clock();
-	while (!stop) {
+	while (!stop_current_execution) {
 
 		start_local = clock();
 		nw.SimulateDynamicStep();
 		cout << "Dynamic:\ttime: " << nw.time << "\t" << clock() - start_local << "ms" << endl;
 		
-		if (stop) {
-			binarized = true;
+		if (stop_current_execution) {
+			cli_end_flag = true;
 			binary_timer = -binary_timer_delay;
 		}
 
@@ -122,6 +122,8 @@ void foo(SFNetworkOscillator &nw, string &file_name) {
 double start = clock();
 
 int main(int argc, char** argv) {
+	
+	ShowWindow(GetConsoleWindow(), SW_MINIMIZE);
 
 	if (argc < 7 && argc != 2) {
 		cout << "Argument list:\n\tnode_count\n\tmlt\n\tlambda\n\ttime_step\n\tsolve_step\n\trnd_seed\n\tfilename" << endl;

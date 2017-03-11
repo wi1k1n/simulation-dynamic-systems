@@ -26,19 +26,19 @@ double measureRuntime(const function<void()> f) {
 	return (clock() - start) / (double)CLOCKS_PER_SEC;
 }
 
-bool stop = false;
+bool stop_current_execution = false;
 void cli() {
-	while (!stop) {
+	while (!stop_current_execution) {
 		int t;
 		cin >> t;
-		stop = t == 9;
+		stop_current_execution = t == 9;
 	}
 }
 void foo() {
 	double start_local = clock();
 	SFNetworkOscillator nw(75, 3, .4, 1, 10, -PI, PI, 0, .1, .005, 626);
 	cout << "Network generated in " << clock() - start_local << "ms" << endl;
-	while(!stop) {
+	while(!stop_current_execution) {
 		start_local = clock();
 		nw.SimulateDynamicStep();
 		cout << "Dynamic:\ttime: " << nw.time << "\t" << clock() - start_local << "ms" << endl;
