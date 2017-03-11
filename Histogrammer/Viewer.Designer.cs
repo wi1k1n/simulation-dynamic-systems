@@ -33,8 +33,7 @@
             this.качествоToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.скоростьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.домойToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openSFNWOscToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.nwmanagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ilGrapher1 = new Diploma2.ilGrapher();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -45,8 +44,7 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.отрисовкаToolStripMenuItem,
             this.домойToolStripMenuItem,
-            this.openSFNWOscToolStripMenuItem,
-            this.settingsToolStripMenuItem});
+            this.nwmanagerToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1078, 28);
@@ -85,20 +83,12 @@
             this.домойToolStripMenuItem.Text = "Домой";
             this.домойToolStripMenuItem.Click += new System.EventHandler(this.домойToolStripMenuItem_Click);
             // 
-            // openSFNWOscToolStripMenuItem
+            // nwmanagerToolStripMenuItem
             // 
-            this.openSFNWOscToolStripMenuItem.Name = "openSFNWOscToolStripMenuItem";
-            this.openSFNWOscToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openSFNWOscToolStripMenuItem.Size = new System.Drawing.Size(112, 24);
-            this.openSFNWOscToolStripMenuItem.Text = "Открыть сеть";
-            this.openSFNWOscToolStripMenuItem.Click += new System.EventHandler(this.openSFNWOscToolStripMenuItem_Click);
-            // 
-            // settingsToolStripMenuItem
-            // 
-            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(96, 24);
-            this.settingsToolStripMenuItem.Text = "Настройки";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            this.nwmanagerToolStripMenuItem.Name = "nwmanagerToolStripMenuItem";
+            this.nwmanagerToolStripMenuItem.Size = new System.Drawing.Size(53, 24);
+            this.nwmanagerToolStripMenuItem.Text = "Сети";
+            this.nwmanagerToolStripMenuItem.Click += new System.EventHandler(this.nwmanagerToolStripMenuItem_Click);
             // 
             // ilGrapher1
             // 
@@ -143,8 +133,7 @@
         private System.Windows.Forms.ToolStripMenuItem скоростьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem домойToolStripMenuItem;
         private ilGrapher ilGrapher1;
-        private System.Windows.Forms.ToolStripMenuItem openSFNWOscToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem nwmanagerToolStripMenuItem;
     }
 }
 

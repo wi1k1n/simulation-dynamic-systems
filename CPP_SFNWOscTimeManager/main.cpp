@@ -18,7 +18,7 @@
 #define PI	3.1415926535897932384626433832795
 #define O(n, m, k)	n * n * n * m * k
 
-#define DEFAULT_FILE_NAME	"queue"
+#define DEFAULT_FILE_NAME	"queue.dll"
 
 
 using namespace std;
@@ -80,6 +80,20 @@ string network_name(SFNetworkOscillator& nw) {
 		+ "_" + to_string_with_precision(nw.time_step, 3)
 		+ "_" + to_string_with_precision(nw.solve_step, 3)
 		+ "_" + to_string_with_precision(nw.seed, 0);
+}
+
+
+
+double predict(int n, int m, double ts, double ss) {
+	const int times = 5;
+	SFNetworkOscillator nw = SFNetworkOscillator(n, m, 0, 0, 1, 0, 1, 0, ss, ss);
+	double N = ts / ss;
+	if (N > times) N = times;
+	double start = clock();
+	for (int i = 0; i < N; i++)
+		nw.SimulateDynamicStep();
+	double t = (clock() - start) / N;
+	return t * ts / ss;
 }
 
 
@@ -221,6 +235,8 @@ int execution(vector<string> argv, fstream &ofstr) {
 		}
 	}
 
+	cout << "Prediction for each time iteration is " << predict(nw.node_count, nw.multiplier, nw.time_step, nw.solve_step) << endl;
+
 	stop_current_execution = false;
 	thread calculation(&nwcalc, ref(nw), ref(file_name), time_end);
 	calculation.join();
@@ -292,11 +308,11 @@ int main(int argc, char** argv) {
 	vector<vector<string>> commands(0);
 
 	cout << "The following command list has been loaded:" << endl;
-	for (string i : args)
+	for (int i = 0; i < args.size(); i++)
 	{
-		cout << "\t" << i << endl;
+		cout << i << ".\t" << args[i] << endl;
 		vector<string> arg;
-		split(i, arg, ' ');
+		split(args[i], arg, ' ');
 		commands.push_back(arg);
 	}
 	cout << endl;

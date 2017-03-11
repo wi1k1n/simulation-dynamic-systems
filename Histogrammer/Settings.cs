@@ -31,7 +31,7 @@ namespace Diploma2
 
         double kMin = 0.05,
             kMax = 20;
-        private float GetTrackValue(TrackBar tr)
+        private float GetTrackValue(TrackBar tr, double kMin, double kMax)
         {
             // These formulas are derived from y=a/(x-b)+c by 3 points
             double r = 0,
@@ -46,8 +46,8 @@ namespace Diploma2
         private void trackBarSS_Scroll(object sender, EventArgs e)
         {
             MacroEventArgs evt = new MacroEventArgs(
-                GetTrackValue(trackBar1),
-                GetTrackValue(trackBar2)
+                GetTrackValue(trackBar1, 0.05, 20),
+                GetTrackValue(trackBar2, 0.05, 20)
             );
             label5.Text = evt.V.X.ToString();
             label6.Text = evt.V.Y.ToString();
@@ -56,33 +56,12 @@ namespace Diploma2
         private void trackBarCH_Scroll(object sender, EventArgs e)
         {
             MacroEventArgs evt = new MacroEventArgs(
-                GetTrackValue(trackBar4),
-                GetTrackValue(trackBar3)
+                GetTrackValue(trackBar4, 0.05, 20),
+                GetTrackValue(trackBar3, 0.05, 20)
             );
             label7.Text = evt.V.X.ToString();
             label8.Text = evt.V.Y.ToString();
             OnMacroCoherencyScaleChanged?.Invoke(this, evt);
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-            trackBar1.Value = 0;
-            trackBarSS_Scroll(this, new EventArgs());
-        }
-        private void label2_Click(object sender, EventArgs e)
-        {
-            trackBar2.Value = 0;
-            trackBarSS_Scroll(this, new EventArgs());
-        }
-        private void label4_Click(object sender, EventArgs e)
-        {
-            trackBar4.Value = 0;
-            trackBarCH_Scroll(this, new EventArgs());
-        }
-        private void label3_Click(object sender, EventArgs e)
-        {
-            trackBar3.Value = 0;
-            trackBarCH_Scroll(this, new EventArgs());
         }
     }
     public class MacroEventArgs : EventArgs

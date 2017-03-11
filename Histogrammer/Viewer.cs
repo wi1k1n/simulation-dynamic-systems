@@ -18,14 +18,9 @@ namespace Diploma2
         const string registryKeyName = "SOFTWARE\\Ilyko\\Diploma2\\CSharp\\SFNetworkOscViewer";
         RegistryKey registryKey = null;
 
-        Settings frmSettings = new Settings();
-        OpenFileDialog ofd = new OpenFileDialog();
+        NWManager frmNWManager = new NWManager();
 
-        SFNetworkOscillator nw = null;
-        List<KeyValuePair<double, double>> macroSumSignal = new List<KeyValuePair<double, double>>();
-        PointF macroSumSignalK = new Point(1, 1);
-        List<KeyValuePair<double, double>> macroCoherency = new List<KeyValuePair<double, double>>();
-        PointF macroCoherencyK = new Point(1, 1);
+        List<SFNWOscGraph> networkGraphMacros = new List<SFNWOscGraph>();
 
         public Form1()
         {
@@ -39,14 +34,11 @@ namespace Diploma2
             ilGrapher1.Quality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
 
             try { registryKey = Registry.CurrentUser.CreateSubKey(registryKeyName); } catch { }
-
-            frmSettings.OnMacroSumSignalScaleChanged += (o, e) => {
-                macroSumSignalK = e.V;
-                ilGrapher1.Invalidate();
-            };
-            frmSettings.OnMacroCoherencyScaleChanged += (o, e) => {
-                macroCoherencyK = e.V;
-                ilGrapher1.Invalidate();
+            
+            frmNWManager.OnNetworkOpened += (o, e) =>
+            {
+                networkGraphMacros.Add(e.Network);
+                Invalidate();
             };
         }
 
@@ -59,45 +51,8 @@ namespace Diploma2
         }
         private void IlGrapher1_AfterPaintAxes(object sender, EventArgs e)
         {
-            for (int i = 1; i < macroSumSignal.Count; i++)
-            {
-                ilGrapher1.DrawLine(
-                    Color.Red,
-                    2,
-                    (float)macroSumSignal[i - 1].Key * macroSumSignalK.X,
-                    (float)macroSumSignal[i - 1].Value * macroSumSignalK.Y,
-                    (float)macroSumSignal[i].Key * macroSumSignalK.X,
-                    (float)macroSumSignal[i].Value * macroSumSignalK.Y
-                );
-                ilGrapher1.FillCirclePoint(
-                    Color.Red,
-                    2,
-                    new PointF(
-                        (float)macroSumSignal[i].Key * macroSumSignalK.X,
-                        (float)macroSumSignal[i].Value * macroSumSignalK.Y
-                    )
-                );
-            }
-
-            for (int i = 1; i < macroCoherency.Count; i++)
-            {
-                ilGrapher1.DrawLine(
-                    Color.Blue,
-                    2,
-                    (float)macroCoherency[i - 1].Key * macroCoherencyK.X,
-                    (float)macroCoherency[i - 1].Value * macroCoherencyK.Y,
-                    (float)macroCoherency[i].Key * macroCoherencyK.X,
-                    (float)macroCoherency[i].Value * macroCoherencyK.Y
-                );
-                ilGrapher1.FillCirclePoint(
-                    Color.Blue,
-                    2,
-                    new PointF(
-                        (float)macroCoherency[i].Key * macroCoherencyK.X,
-                        (float)macroCoherency[i].Value * macroCoherencyK.Y
-                    )
-                );
-            }
+            foreach (SFNWOscGraph nwgm in networkGraphMacros)
+                nwgm.Draw(ilGrapher1);
         }
 
         private void качествоToolStripMenuItem_Click(object sender, EventArgs e)
@@ -117,46 +72,9 @@ namespace Diploma2
             ilGrapher1.Home();
         }
 
-
-        private void openSFNWOscToolStripMenuItem_Click(object sender, EventArgs e)
+        private void nwmanagerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ofd.ShowDialog() == DialogResult.OK && File.Exists(ofd.FileName))
-            {
-                try
-                {
-                    nw = SFNetworkOscillator.Debinarize(ofd.FileName);
-                    InitializeMacro();
-                    ilGrapher1.Invalidate();
-                }
-                catch (Exception ex) { MessageBox.Show("Error occured while loading file: " + ex.Message, "Loading error"); }
-            }
-        }
-        private void InitializeMacro()
-        {
-            macroSumSignal = new List<KeyValuePair<double, double>>();
-            macroCoherency = new List<KeyValuePair<double, double>>();
-            foreach (SFNetworkOscillatorState d in nw.States)
-            {
-                double sumSig = 0;
-                double sumCoh = 0;
-                double sumCohi = 0;
-                double cos = 0;
-                for (int j = 0; j < d.Phases.Length; j++)
-                {
-                    cos = Math.Cos(d.Phases[j]);
-                    sumSig += cos;
-                    sumCoh += cos;
-                    sumCohi += Math.Sin(d.Phases[j]);
-                }
-                sumCoh = (Math.Sqrt(Math.Pow(sumCoh, 2) + Math.Pow(sumCohi, 2)) / d.Phases.Length);
-                macroSumSignal.Add(new KeyValuePair<double, double>(d.Time, sumSig));
-                macroCoherency.Add(new KeyValuePair<double, double>(d.Time, sumCoh));
-            }
-        }
-
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            frmSettings.Show();
+            frmNWManager.Show();
         }
     }
 }
