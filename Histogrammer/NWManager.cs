@@ -12,21 +12,27 @@ namespace Diploma2
 {
     public partial class NWManager : Form
     {
-        public event EventHandler<int> OnNetworkOpened;
-        public event EventHandler<SFNWOscEventArgs> OnNetworkChanged;
+        public event EventHandler<SFNWOscGraph> OnNetworkOpened;
+        public event EventHandler<SFNWOscGraph> OnNetworkChanged;
+        public event EventHandler<SFNWOscGraph> OnNetworkRemoved;
 
         List<SFNWOscGraph> networks = new List<SFNWOscGraph>();
+
         OpenFileDialog ofd = new OpenFileDialog();
+        ColorDialog cd = new ColorDialog();
 
         public NWManager()
         {
             InitializeComponent();
+
+            ofd.Multiselect = true;
         }
 
         private void NWManager_Load(object sender, EventArgs e)
         {
             groupBox1.Enabled = false;
             groupBox2.Enabled = false;
+            checkBox1.Enabled = false;
         }
 
         private void nwopenToolStripMenuItem_Click(object sender, EventArgs e)
@@ -35,15 +41,18 @@ namespace Diploma2
             {
                 try
                 {
-                    SFNetworkOscillator nw = SFNetworkOscillator.Debinarize(ofd.FileName);
-                    SFNWOscGraph nwg = new SFNWOscGraph(nw, ofd.FileName, Color.Red, Color.Blue);
-                    networks.Add(nwg);
+                    foreach (string fn in ofd.FileNames)
+                    {
+                        SFNetworkOscillator nw = SFNetworkOscillator.Debinarize(fn);
+                        SFNWOscGraph nwg = new SFNWOscGraph(nw, fn, Color.Red, Color.Blue);
+                        networks.Add(nwg);
 
-                    listBox1.Items.Clear();
-                    foreach (SFNWOscGraph i in networks)
-                        listBox1.Items.Add(i);
+                        listBox1.Items.Clear();
+                        foreach (SFNWOscGraph i in networks)
+                            listBox1.Items.Add(i);
 
-                    OnNetworkOpened?.Invoke(this, new SFNWOscEventArgs(nwg));
+                        OnNetworkOpened?.Invoke(this, nwg);
+                    }
                 }
                 catch (Exception ex) { MessageBox.Show("Error occured while loading file: " + ex.Message, "Loading error"); }
             }
@@ -69,6 +78,7 @@ namespace Diploma2
                 GetTrackValue(trackBar1, 0.05, 20),
                 GetTrackValue(trackBar2, 0.05, 20)
             );
+            sfnwog.MacroSignalKTB = new PointF(trackBar1.Value, trackBar2.Value);
             label5.Text = sfnwog.MacroSignalK.X.ToString();
             label6.Text = sfnwog.MacroSignalK.Y.ToString();
             OnNetworkChanged?.Invoke(this, sfnwog);
@@ -77,22 +87,81 @@ namespace Diploma2
         {
             if (listBox1.SelectedIndex == -1) return;
             SFNWOscGraph sfnwog = ((SFNWOscGraph)listBox1.SelectedItem);
-            sfnwog.MacroSignalK = new PointF(
+            sfnwog.MacroCoherencyK = new PointF(
                 GetTrackValue(trackBar4, 0.05, 20),
                 GetTrackValue(trackBar3, 0.05, 20)
             );
-            label7.Text = sfnwog.MacroSignalK.X.ToString();
-            label8.Text = sfnwog.MacroSignalK.Y.ToString();
+            sfnwog.MacroCoherencyKTB = new PointF(trackBar1.Value, trackBar2.Value);
+            label7.Text = sfnwog.MacroCoherencyK.X.ToString();
+            label8.Text = sfnwog.MacroCoherencyK.Y.ToString();
+            OnNetworkChanged?.Invoke(this, sfnwog);
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             groupBox1.Enabled = false;
             groupBox2.Enabled = false;
+            checkBox1.Enabled = false;
             if (listBox1.SelectedIndex > -1)
             {
+                SFNWOscGraph sfnwog = ((SFNWOscGraph)listBox1.SelectedItem);
                 groupBox1.Enabled = true;
                 groupBox2.Enabled = true;
+                checkBox1.Enabled = true;
+                checkBox1.Checked = sfnwog.Visible;
+                trackBar1.Value = (int)sfnwog.MacroSignalKTB.X;
+                trackBar2.Value = (int)sfnwog.MacroSignalKTB.Y;
+                label5.Text = sfnwog.MacroSignalK.X.ToString();
+                label6.Text = sfnwog.MacroSignalK.Y.ToString();
+                trackBar4.Value = (int)sfnwog.MacroCoherencyKTB.X;
+                trackBar3.Value = (int)sfnwog.MacroCoherencyKTB.Y;
+                label7.Text = sfnwog.MacroCoherencyK.X.ToString();
+                label8.Text = sfnwog.MacroCoherencyK.Y.ToString();
+                pictureBox1.BackColor = sfnwog.ColorSignal;
+                pictureBox2.BackColor = sfnwog.ColorCoherency;
+            }
+        }
+
+        private void NWManager_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+        }
+
+        private void rmnetworkToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex == -1) return;
+            OnNetworkRemoved?.Invoke(this, networks[listBox1.SelectedIndex]);
+            networks.RemoveAt(listBox1.SelectedIndex);
+            listBox1.Items.RemoveAt(listBox1.SelectedIndex);
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex == -1) return;
+            networks[listBox1.SelectedIndex].Visible = checkBox1.Checked;
+            OnNetworkChanged?.Invoke(this, networks[listBox1.SelectedIndex]);
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex == -1) return;
+            if (cd.ShowDialog() == DialogResult.OK)
+            {
+                pictureBox1.BackColor = cd.Color;
+                networks[listBox1.SelectedIndex].ColorSignal = cd.Color;
+                OnNetworkChanged?.Invoke(this, networks[listBox1.SelectedIndex]);
+            }
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex == -1) return;
+            if (cd.ShowDialog() == DialogResult.OK)
+            {
+                pictureBox2.BackColor = cd.Color;
+                networks[listBox1.SelectedIndex].ColorCoherency = cd.Color;
+                OnNetworkChanged?.Invoke(this, networks[listBox1.SelectedIndex]);
             }
         }
     }
@@ -106,9 +175,13 @@ namespace Diploma2
 
         public List<KeyValuePair<double, double>> MacroSignal = new List<KeyValuePair<double, double>>();
         public List<KeyValuePair<double, double>> MacroCoherency = new List<KeyValuePair<double, double>>();
+        public PointF MacroSignalKTB = new Point(1, 1);
         public PointF MacroSignalK = new Point(1, 1);
         public PointF MacroCoherencyK = new Point(1, 1);
-        
+        public PointF MacroCoherencyKTB = new Point(1, 1);
+
+        public bool Visible { get; set; }
+
         public SFNWOscGraph(SFNetworkOscillator nw, string path, Color clrSS, Color clrCH)
         {
             Network = nw;
@@ -116,6 +189,8 @@ namespace Diploma2
             Name = System.IO.Path.GetFileName(path);
             ColorSignal = clrSS;
             ColorCoherency = clrCH;
+            Visible = true;
+
             InitializeMacro();
         }
         private void InitializeMacro()
@@ -187,11 +262,5 @@ namespace Diploma2
         {
             return Name;
         }
-    }
-
-    public class SFNWOscEventArgs : EventArgs
-    {
-        public SFNWOscGraph Network { get; set; }
-        public SFNWOscEventArgs(SFNWOscGraph nw) { Network = nw; }
     }
 }

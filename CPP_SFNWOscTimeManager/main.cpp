@@ -235,7 +235,7 @@ int execution(vector<string> argv, fstream &ofstr) {
 		}
 	}
 
-	cout << "Prediction for each time iteration is " << predict(nw.node_count, nw.multiplier, nw.time_step, nw.solve_step) << endl;
+	//cout << "Prediction for each time iteration is " << predict(nw.node_count, nw.multiplier, nw.time_step, nw.solve_step) << endl;
 
 	stop_current_execution = false;
 	thread calculation(&nwcalc, ref(nw), ref(file_name), time_end);

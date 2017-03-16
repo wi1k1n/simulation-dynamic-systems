@@ -37,8 +37,17 @@ namespace Diploma2
             
             frmNWManager.OnNetworkOpened += (o, e) =>
             {
-                networkGraphMacros.Add(e.Network);
-                Invalidate();
+                networkGraphMacros.Add(e);
+                ilGrapher1.Invalidate();
+            };
+            frmNWManager.OnNetworkChanged += (o, e) =>
+            {
+                ilGrapher1.Invalidate();
+            };
+            frmNWManager.OnNetworkRemoved += (o, e) =>
+            {
+                networkGraphMacros.Remove(e);
+                ilGrapher1.Invalidate();
             };
         }
 
@@ -52,7 +61,8 @@ namespace Diploma2
         private void IlGrapher1_AfterPaintAxes(object sender, EventArgs e)
         {
             foreach (SFNWOscGraph nwgm in networkGraphMacros)
-                nwgm.Draw(ilGrapher1);
+                if (nwgm.Visible)
+                    nwgm.Draw(ilGrapher1);
         }
 
         private void качествоToolStripMenuItem_Click(object sender, EventArgs e)
