@@ -27,7 +27,8 @@ namespace Diploma2
         int histCount = 200;
         int histMax = int.MinValue;
         List<List<int>> hist = new List<List<int>>();
-        Rectangle histRect = new Rectangle(10, 110, 850, 150);
+        Rectangle histRect = new Rectangle(20, 180, 1000, 600);
+        Rectangle histRadRect = new Rectangle(10, 260, 600, 600);
 
         Timer timer1 = new Timer();
         bool isRunning = false;
@@ -113,6 +114,32 @@ namespace Diploma2
                         hist[stateCurrent][i] * histKY
                     );
                 g.DrawRectangle(Pens.Black, histRect);
+                Font font = new Font("Segoe UI", 12f, FontStyle.Regular);
+                float d = g.MeasureString("0", f).Width / 2;
+                g.DrawString("0", font, Brushes.Black, histRect.Left - d, histRect.Bottom);
+                d = g.MeasureString("2pi", f).Width / 2;
+                g.DrawString("2pi", font, Brushes.Black, histRect.Right - d, histRect.Bottom);
+
+
+
+                //// Drawing histogram Radian
+                //float histRadK = 360.0F / histCount;
+                //histKY = (histRadRect.Height / 2 - 1f) / histMax;
+                //var gstate = g.Save();
+                //g.TranslateTransform(histRadRect.X + histRadRect.Width / 2, histRadRect.Y + histRadRect.Height / 2);
+                //for (int i = 0; i < hist[stateCurrent].Count; i++)
+                //{
+                //    g.RotateTransform(-histRadK);
+                //    g.FillRectangle(
+                //        Brushes.Orange,
+                //        0,
+                //        -2,
+                //        hist[stateCurrent][i] * histKY,
+                //        4
+                //    );
+                //}
+                //g.Restore(gstate);
+                //g.DrawRectangle(Pens.Black, histRect);
             }
             #endregion
         }
@@ -189,15 +216,35 @@ namespace Diploma2
                 try
                 {
                     nw = SFNetworkOscillator.Debinarize(ofd.FileName);
+
+                    // вот эта лажа - попытка линейно интерполировать значения между 2 значениями фаз.. работает, но качественно получается плохой результат
+                    double n = 1;
+                    for (int i = 0; i < nw.States.Count / n - 1; i++)
+                    {
+                        SFNetworkOscillatorState d = nw.States[(int)(i * n)];
+                        SFNetworkOscillatorState d2 = nw.States[(int)(i * n) + 1];
+                        for (int j = 1; j < n; j++)
+                        {
+                            double time = d.Time + (d2.Time - d.Time) / n * j;
+                            double[] phs = new double[d.Phases.Length];
+                            for (int k = 0; k < phs.Length; k++)
+                                phs[k] = d.Phases[k] + (d2.Phases[k] - d.Phases[k]) / n * j;
+                            SFNetworkOscillatorState st = new SFNetworkOscillatorState(time, phs);
+                            nw.States.Insert(i * (int)(n) + j, st);
+                        }
+                    }
+
                     VisualizeNetwork();
                     InitializeMacro();
                     InitializeHist();
-                }
-                catch (Exception ex) { MessageBox.Show("Error occured while loading file: " + ex.Message, "Loading error"); }
             }
+                catch (Exception ex) { MessageBox.Show("Error occured while loading file: " + ex.Message, "Loading error"); }
+        }
         }
         private void VisualizeNetwork()
         {
+            // The number of tries to find free space
+            int watchDog = 500;
             // Radius sizes of the whole network
             float min_rad = 20;
             // Vertex radiuses
@@ -237,7 +284,7 @@ namespace Diploma2
                     {
                         if (Math.Sqrt(Math.Pow(pts[j].Location.X - x, 2) + Math.Pow(pts[j].Location.Y - y, 2)) <= pts[j].Radius + radius) { overlap = true; break; }
                     }
-                    if (!overlap || ++wtchdg > 1000)
+                    if (!overlap || ++wtchdg > watchDog)
                     {
                         pts.Add(new Vertex(i, new Point(x, y), nw.Nodes[i], nw.Nodes[i] * it_size + min_size));
                         iterate = false;

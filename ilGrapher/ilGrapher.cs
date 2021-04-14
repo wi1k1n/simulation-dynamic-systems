@@ -296,19 +296,19 @@ namespace Diploma2
             return IsGlobalOnScreen(p.X, p.Y, indentX, indentY);
         }
 
-        private PointD Local2Global(double localX, double localY)
+        public PointD Local2Global(double localX, double localY)
         {
             return new PointD((float)(center.X + localX * axisItemWidth / zx), (float)(center.Y - localY * axisItemWidth / zy));
         }
-        private PointD Local2Global(PointD localPoint)
+        public PointD Local2Global(PointD localPoint)
         {
             return Local2Global(localPoint.X, localPoint.Y);
         }
-        private PointD Global2Local(double globalX, double globalY)
+        public PointD Global2Local(double globalX, double globalY)
         {
             return new PointD((float)(zx * (globalX - center.X) / axisItemWidth), (float)(zy * (center.Y - globalY) / axisItemWidth));
         }
-        private PointD Global2Local(PointD globalPoint)
+        public PointD Global2Local(PointD globalPoint)
         {
             return Global2Local(globalPoint.X, globalPoint.Y);
         }
@@ -332,14 +332,18 @@ namespace Diploma2
             zy = Math.Pow(zoomY, zoomDir.Y);
             Invalidate();
         }
+        public void Zoom(int direction)
+        {
+            ilGrapher_MouseWheel(null, new MouseEventArgs(MouseButtons.Middle, 0, 0, 0, direction));
+        }
 
         // isLocalOnScreen
         public bool IsOnScreen(double x, double y)
         {
-            Point p = Local2Global(x, y);
+            PointD p = Local2Global(x, y);
             return p.X >= 0 && p.X <= Width && p.Y >= 0 && p.Y <= Height;
         }
-        public bool IsOnScreen(Point p)
+        public bool IsOnScreen(PointD p)
         {
             return IsOnScreen(p.X, p.Y);
         }
@@ -372,6 +376,10 @@ namespace Diploma2
         }
         public void DrawRectangle(Color clr, RectangleF rect)
         {
+            DrawRectangle(clr, 1, rect);
+        }
+        public void DrawRectangle(Color clr, float width, RectangleF rect)
+        {
             if (capture) captureDraw.Add(new ilGraphCaptureDrawRectangle(clr, rect));
             if (g == null) return;
             Point p1 = Local2Global(rect.X, rect.Y);
@@ -383,7 +391,7 @@ namespace Diploma2
             int h = p1.Y - p2.Y;
             if (Math.Abs(h) < 1) return;
             int y = h > 0 ? p2.Y : p1.Y;
-            g.DrawRectangle(new Pen(clr), new Rectangle(x, y, Math.Abs(w), Math.Abs(h)));
+            g.DrawRectangle(new Pen(clr, width), new Rectangle(x, y, Math.Abs(w), Math.Abs(h)));
         }
         public void DrawCircle(Color clr, float x, float y, float r)
         {
@@ -391,13 +399,17 @@ namespace Diploma2
         }
         public void DrawCircle(Color clr, float r, PointF p)
         {
+            DrawCircle(clr, 1, r, p);
+        }
+        public void DrawCircle(Color clr, float width, float r, PointF p)
+        {
             if (capture) captureDraw.Add(new ilGraphCaptureDrawCircle(clr, r, p));
             if (g == null) return;
             p = Local2Global(p);
             float rx = r * axisItemWidth / zoomX,
                 ry = r * axisItemWidth / zoomY;
             if (!IsGlobalOnScreen(p, rx, ry)) return;
-            g.DrawEllipse(new Pen(clr), p.X - rx, p.Y - ry, rx * 2, ry * 2);
+            g.DrawEllipse(new Pen(clr, width), p.X - rx, p.Y - ry, rx * 2, ry * 2);
         }
         public void DrawString(string s, Font font, Color clr, float x, float y)
         {
@@ -426,7 +438,7 @@ namespace Diploma2
             p = Local2Global(p);
             float rx = r * axisItemWidth / zoomX,
                 ry = r * axisItemWidth / zoomY;
-            if (!IsGlobalOnScreen(p, rx, ry)) return;
+            //if (!IsGlobalOnScreen(p, rx, ry)) return;
             g.FillEllipse(new SolidBrush(clr), p.X - rx, p.Y - ry, rx * 2, ry * 2);
         }
         public void FillRectangle(Color clr, float x, float y, float width, float height)
@@ -456,12 +468,16 @@ namespace Diploma2
         }
         public void DrawRectanglePoint(Color clr, RectangleF rect)
         {
+            DrawRectanglePoint(clr, 1, rect);
+        }
+        public void DrawRectanglePoint(Color clr, float width, RectangleF rect)
+        {
             if (capture) captureDrawPoint.Add(new ilGraphCaptureDrawRectanglePoint(clr, rect));
             if (g == null) return;
             Point p = Local2Global(rect.Location);
             SizeF sizeHalf = new SizeF(rect.Width / 2, rect.Height / 2);
             if (!IsGlobalOnScreen(p.X - sizeHalf.Width, p.Y - sizeHalf.Height / 2) && !IsGlobalOnScreen(p.X - sizeHalf.Width, p.Y + sizeHalf.Height / 2) && !IsGlobalOnScreen(p.X + sizeHalf.Width, p.Y + sizeHalf.Height / 2) && !IsGlobalOnScreen(p.X + sizeHalf.Width, p.Y - sizeHalf.Height / 2)) return;
-            g.DrawRectangle(new Pen(clr), p.X - sizeHalf.Width, p.Y - sizeHalf.Height, rect.Width, rect.Height);
+            g.DrawRectangle(new Pen(clr, width), p.X - sizeHalf.Width, p.Y - sizeHalf.Height, rect.Width, rect.Height);
         }
         public void DrawCirclePoint(Color clr, float x, float y, float r)
         {
@@ -469,11 +485,15 @@ namespace Diploma2
         }
         public void DrawCirclePoint(Color clr, PointF p, float r)
         {
+            DrawCirclePoint(clr, 1, p, r);
+        }
+        public void DrawCirclePoint(Color clr, float width, PointF p, float r)
+        {
             if (capture) captureDrawPoint.Add(new ilGraphCaptureDrawCirclePoint(clr, r, p));
             if (g == null) return;
             p = Local2Global(p);
             if (!IsGlobalOnScreen(p, r, r)) return;
-            g.DrawEllipse(new Pen(clr), p.X - r, p.Y - r, r * 2, r * 2);
+            g.DrawEllipse(new Pen(clr, width), p.X - r, p.Y - r, r * 2, r * 2);
         }
         public void DrawStringPoint(string s, Font font, Color clr, float x, float y)
         {

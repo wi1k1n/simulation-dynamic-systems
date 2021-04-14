@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Diploma2
 {
-    struct PointD
+    public struct PointD
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -53,10 +53,10 @@ namespace Diploma2
         }
         static public implicit operator PointF(PointD p)
         {
-            return new PointF((int)p.X, (int)p.Y);
+            return new PointF((float)p.X, (float)p.Y);
         }
     }
-    struct SizeD
+    public struct SizeD
     {
         public double Width { get; set; }
         public double Height { get; set; }

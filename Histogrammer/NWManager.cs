@@ -211,6 +211,7 @@ namespace Diploma2
                     sumCohi += Math.Sin(d.Phases[j]);
                 }
                 sumCoh = (Math.Sqrt(Math.Pow(sumCoh, 2) + Math.Pow(sumCohi, 2)) / d.Phases.Length);
+                sumSig /= (double)d.Phases.Length;
                 MacroSignal.Add(new KeyValuePair<double, double>(d.Time, sumSig));
                 MacroCoherency.Add(new KeyValuePair<double, double>(d.Time, sumCoh));
             }
